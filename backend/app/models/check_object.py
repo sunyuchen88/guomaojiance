@@ -44,6 +44,12 @@ class CheckObject(Base):
     check_result = Column(String(20), nullable=True)
     check_result_url = Column(Text, nullable=True)
 
+    # 需求2.5.1新增字段 - 详情页样品基本信息
+    commission_unit_address = Column(String(500), nullable=True)  # 委托单位地址
+    production_date = Column(String(50), nullable=True, server_default='/')  # 生产日期，默认"/"
+    sample_quantity = Column(String(50), nullable=True)  # 样品数量
+    inspection_date = Column(String(50), nullable=True)  # 检测日期
+
     # Metadata
     create_admin = Column(String(100), nullable=True)
     create_time = Column(TIMESTAMP, server_default=func.now())
