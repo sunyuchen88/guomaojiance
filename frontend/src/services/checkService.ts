@@ -42,6 +42,12 @@ export interface CheckObjectDetail extends CheckObject {
   subcontract_lab: string | null;
   remark: string | null;
   check_items: CheckObjectItem[];
+
+  // 需求2.5.1: 新增字段 - 详情页样品基本信息
+  commission_unit_address: string | null;
+  production_date: string | null;
+  sample_quantity: string | null;
+  inspection_date: string | null;
 }
 
 export interface CheckObjectList {
@@ -70,6 +76,13 @@ export interface CheckObjectUpdateData {
   grade?: string;
   remark?: string;
   status?: number;
+
+  // 需求2.5.1: 新增字段
+  commission_unit_address?: string;
+  production_date?: string;
+  sample_quantity?: string;
+  inspection_date?: string;
+
   check_items?: Array<{
     id?: number;
     check_item_name?: string;

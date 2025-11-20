@@ -67,6 +67,30 @@
           <a-descriptions-item label="委托单位" :span="2">
             {{ checkObject.commissioning_unit || '-' }}
           </a-descriptions-item>
+          <a-descriptions-item label="委托单位地址" :span="2">
+            <a-input
+              v-model:value="editForm.commission_unit_address"
+              placeholder="请输入委托单位地址"
+            />
+          </a-descriptions-item>
+          <a-descriptions-item label="生产日期">
+            <a-input
+              v-model:value="editForm.production_date"
+              placeholder="默认 /"
+            />
+          </a-descriptions-item>
+          <a-descriptions-item label="样品数量">
+            <a-input
+              v-model:value="editForm.sample_quantity"
+              placeholder="请输入样品数量"
+            />
+          </a-descriptions-item>
+          <a-descriptions-item label="检测日期">
+            <a-input
+              v-model:value="editForm.inspection_date"
+              placeholder="请输入检测日期"
+            />
+          </a-descriptions-item>
           <a-descriptions-item label="检验结果">
             {{ checkObject.check_result || '待检测' }}
           </a-descriptions-item>
@@ -188,6 +212,11 @@ const editForm = reactive({
   sample_name: '',
   company_name: '',
   remark: '',
+  // 需求2.5.1: 新增字段
+  commission_unit_address: '',
+  production_date: '/',
+  sample_quantity: '',
+  inspection_date: '',
 });
 
 const itemColumns = [
@@ -240,6 +269,11 @@ async function loadDetail() {
     editForm.sample_name = data.sample_name || '';
     editForm.company_name = data.company_name || '';
     editForm.remark = data.remark || '';
+    // 需求2.5.1: 初始化新字段
+    editForm.commission_unit_address = data.commission_unit_address || '';
+    editForm.production_date = data.production_date || '/';
+    editForm.sample_quantity = data.sample_quantity || '';
+    editForm.inspection_date = data.inspection_date || '';
   } catch (error: any) {
     message.error('加载详情失败');
     router.push('/');
@@ -258,6 +292,11 @@ async function handleSave() {
       sample_name: editForm.sample_name,
       company_name: editForm.company_name,
       remark: editForm.remark,
+      // 需求2.5.1: 保存新字段
+      commission_unit_address: editForm.commission_unit_address,
+      production_date: editForm.production_date,
+      sample_quantity: editForm.sample_quantity,
+      inspection_date: editForm.inspection_date,
     });
 
     // T119: Add success notification
