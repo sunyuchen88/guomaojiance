@@ -44,6 +44,19 @@
       />
     </a-form-item>
 
+    <a-form-item label="检测结果">
+      <a-select
+        v-model:value="filters.checkResult"
+        placeholder="全部结果"
+        style="width: 120px"
+        allowClear
+        @change="handleSearch"
+      >
+        <a-select-option value="合格">合格</a-select-option>
+        <a-select-option value="不合格">不合格</a-select-option>
+      </a-select>
+    </a-form-item>
+
     <a-form-item>
       <a-space>
         <a-button type="primary" @click="handleSearch">
@@ -78,6 +91,7 @@ export interface FilterValues {
   checkNo: string;
   startDate: string | null;
   endDate: string | null;
+  checkResult: string | null;  // 需求2.3: 检测结果筛选
 }
 
 interface Props {
@@ -91,6 +105,7 @@ const props = withDefaults(defineProps<Props>(), {
     checkNo: '',
     startDate: null,
     endDate: null,
+    checkResult: null,
   }),
 });
 
@@ -106,6 +121,7 @@ const filters = reactive<FilterValues>({
   checkNo: props.modelValue.checkNo,
   startDate: props.modelValue.startDate,
   endDate: props.modelValue.endDate,
+  checkResult: props.modelValue.checkResult,
 });
 
 const dateRange = ref<[Dayjs, Dayjs] | null>(null);
@@ -119,6 +135,7 @@ watch(
     filters.checkNo = newValue.checkNo;
     filters.startDate = newValue.startDate;
     filters.endDate = newValue.endDate;
+    filters.checkResult = newValue.checkResult;
   },
   { deep: true }
 );
@@ -144,6 +161,7 @@ function handleReset() {
   filters.checkNo = '';
   filters.startDate = null;
   filters.endDate = null;
+  filters.checkResult = null;
   dateRange.value = null;
 
   emit('update:modelValue', { ...filters });

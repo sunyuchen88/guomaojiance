@@ -59,6 +59,7 @@ export interface CheckObjectQuery {
   check_no?: string;
   start_date?: string;
   end_date?: string;
+  check_result?: string;  // 需求2.3: 检测结果筛选
 }
 
 export interface CheckObjectUpdateData {
@@ -93,6 +94,7 @@ export async function getCheckObjects(query?: CheckObjectQuery): Promise<CheckOb
     if (query.check_no) params.check_no = query.check_no;
     if (query.start_date) params.start_date = query.start_date;
     if (query.end_date) params.end_date = query.end_date;
+    if (query.check_result) params.check_result = query.check_result;
   }
 
   const response = await api.get<CheckObjectList>('/check-objects', { params });
@@ -225,6 +227,26 @@ export interface ExportExcelParams {
 
 export async function exportExcel(params: ExportExcelParams): Promise<Blob> {
   const response = await api.post('/reports/export-excel', params, {
+    responseType: 'blob',
+  });
+  return response.data;
+}
+
+/**
+ * Batch download PDF reports
+ * 需求2.4: 批量下载检测报告
+ */
+export interface BatchDownloadParams {
+  status?: number | null;
+  company?: string;
+  check_no?: string;
+  start_date?: string;
+  end_date?: string;
+  check_result?: string;
+}
+
+export async function batchDownloadReports(params: BatchDownloadParams): Promise<Blob> {
+  const response = await api.post('/reports/batch-download', params, {
     responseType: 'blob',
   });
   return response.data;

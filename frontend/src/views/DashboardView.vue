@@ -16,9 +16,7 @@
             <a-space>
               <DataSyncButton @success="handleSyncSuccess" />
               <ExportButton :filters="exportFilters" @success="handleExportSuccess" />
-              <router-link to="/reports">
-                <a-button>报告管理</a-button>
-              </router-link>
+              <BatchDownloadButton :filters="batchDownloadFilters" @success="handleBatchDownloadSuccess" />
             </a-space>
           </template>
 
@@ -108,12 +106,13 @@ import { InboxOutlined } from '@ant-design/icons-vue';
 import { useUserStore } from '@/stores/user';
 import { useCheckObjectStore } from '@/stores/checkObject';
 import { logout as logoutApi } from '@/services/authService';
-import { getStatusText, getStatusColor, type ExportExcelParams } from '@/services/checkService';
+import { getStatusText, getStatusColor, type ExportExcelParams, type BatchDownloadParams } from '@/services/checkService';
 import type { SyncResponse } from '@/services/syncService';
 import DataSyncButton from '@/components/DataSyncButton.vue';
 import QueryFilter from '@/components/QueryFilter.vue';
 import PaginationTable from '@/components/PaginationTable.vue';
 import ExportButton from '@/components/ExportButton.vue';
+import BatchDownloadButton from '@/components/BatchDownloadButton.vue';
 import DownloadButton from '@/components/DownloadButton.vue';
 import dayjs from 'dayjs';
 
@@ -129,6 +128,7 @@ const filterValues = computed({
       checkNo: checkObjectStore.filters.checkNo,
       startDate: checkObjectStore.filters.startDate,
       endDate: checkObjectStore.filters.endDate,
+      checkResult: checkObjectStore.filters.checkResult,
     };
   },
   set(value) {
@@ -154,6 +154,32 @@ const exportFilters = computed<ExportExcelParams>(() => {
   }
   if (checkObjectStore.filters.endDate) {
     filters.end_date = checkObjectStore.filters.endDate;
+  }
+
+  return filters;
+});
+
+// 需求2.4: Batch download filters
+const batchDownloadFilters = computed<BatchDownloadParams>(() => {
+  const filters: BatchDownloadParams = {};
+
+  if (checkObjectStore.filters.status !== null) {
+    filters.status = checkObjectStore.filters.status;
+  }
+  if (checkObjectStore.filters.company) {
+    filters.company = checkObjectStore.filters.company;
+  }
+  if (checkObjectStore.filters.checkNo) {
+    filters.check_no = checkObjectStore.filters.checkNo;
+  }
+  if (checkObjectStore.filters.startDate) {
+    filters.start_date = checkObjectStore.filters.startDate;
+  }
+  if (checkObjectStore.filters.endDate) {
+    filters.end_date = checkObjectStore.filters.endDate;
+  }
+  if (checkObjectStore.filters.checkResult) {
+    filters.check_result = checkObjectStore.filters.checkResult;
   }
 
   return filters;
@@ -237,6 +263,11 @@ function handleSyncSuccess(result: SyncResponse) {
 function handleExportSuccess() {
   // Export completed, no need to reload data
   message.success('导出完成');
+}
+
+function handleBatchDownloadSuccess() {
+  // Batch download completed
+  message.success('批量下载完成');
 }
 
 function handleSearch() {

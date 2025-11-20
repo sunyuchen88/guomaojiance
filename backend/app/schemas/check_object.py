@@ -77,6 +77,13 @@ class CheckObjectDetailResponse(BaseModel):
     check_end_time: Optional[datetime] = None
     check_result: Optional[str] = None
     check_result_url: Optional[str] = None
+
+    # 需求2.5.1新增字段 - 详情页样品基本信息
+    commission_unit_address: Optional[str] = None  # 委托单位地址
+    production_date: Optional[str] = "/"           # 生产日期，默认"/"
+    sample_quantity: Optional[str] = None          # 样品数量
+    inspection_date: Optional[str] = None          # 检测日期
+
     check_items: List[CheckObjectItemResponse] = []
     create_time: datetime
     updated_at: Optional[datetime] = None
@@ -94,6 +101,13 @@ class CheckObjectUpdate(BaseModel):
     grade: Optional[str] = None
     remark: Optional[str] = None
     status: Optional[int] = None
+
+    # 需求2.5.1新增字段
+    commission_unit_address: Optional[str] = None  # 委托单位地址
+    production_date: Optional[str] = None          # 生产日期
+    sample_quantity: Optional[str] = None          # 样品数量
+    inspection_date: Optional[str] = None          # 检测日期
+
     check_items: Optional[List[CheckObjectItemUpdate]] = None
 
 

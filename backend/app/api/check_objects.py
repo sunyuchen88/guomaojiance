@@ -35,11 +35,16 @@ def get_check_objects(
     check_no: Optional[str] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
+    check_result: Optional[str] = None,  # 需求2.3新增：检测结果筛选
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     Get check objects with filters and pagination
+
+    需求2.3更新：新增筛选维度
+    - check_result: 检测结果（合格/不合格）
+    - start_date/end_date: 采样时间段
 
     Args:
         page: Page number (default: 1)
@@ -47,8 +52,9 @@ def get_check_objects(
         status: Filter by status (0=待检测, 1=已检测, 2=已提交)
         company: Filter by company name (fuzzy search)
         check_no: Filter by check number (exact match)
-        start_date: Filter by sampling date start
-        end_date: Filter by sampling date end
+        start_date: Filter by sampling date start (采样起始时间)
+        end_date: Filter by sampling date end (采样结束时间)
+        check_result: Filter by check result (合格/不合格) - 新增
     """
     query = db.query(CheckObject)
 
@@ -72,6 +78,10 @@ def get_check_objects(
         from datetime import datetime, timedelta
         end_datetime = datetime.combine(end_date, datetime.max.time())
         query = query.filter(CheckObject.check_start_time <= end_datetime)
+
+    # 需求2.3新增：检测结果筛选
+    if check_result:
+        query = query.filter(CheckObject.check_result == check_result)
 
     # Order by create_time descending
     query = query.order_by(CheckObject.create_time.desc())

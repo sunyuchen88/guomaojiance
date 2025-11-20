@@ -8,6 +8,7 @@ interface QueryFilters {
   checkNo: string;
   startDate: string | null;
   endDate: string | null;
+  checkResult: string | null;  // 需求2.3: 检测结果筛选
 }
 
 export const useCheckObjectStore = defineStore('checkObject', () => {
@@ -23,6 +24,7 @@ export const useCheckObjectStore = defineStore('checkObject', () => {
     checkNo: '',
     startDate: null,
     endDate: null,
+    checkResult: null,
   });
 
   // Computed
@@ -32,7 +34,8 @@ export const useCheckObjectStore = defineStore('checkObject', () => {
       filters.value.company !== '' ||
       filters.value.checkNo !== '' ||
       filters.value.startDate !== null ||
-      filters.value.endDate !== null
+      filters.value.endDate !== null ||
+      filters.value.checkResult !== null
     );
   });
 
@@ -61,6 +64,9 @@ export const useCheckObjectStore = defineStore('checkObject', () => {
       if (filters.value.endDate) {
         query.end_date = filters.value.endDate;
       }
+      if (filters.value.checkResult) {
+        query.check_result = filters.value.checkResult;
+      }
 
       const result = await getCheckObjects(query);
       checkObjects.value = result.items;
@@ -87,6 +93,7 @@ export const useCheckObjectStore = defineStore('checkObject', () => {
       checkNo: '',
       startDate: null,
       endDate: null,
+      checkResult: null,
     };
     page.value = 1;
   }
