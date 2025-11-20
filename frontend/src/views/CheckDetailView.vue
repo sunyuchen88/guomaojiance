@@ -32,7 +32,10 @@
 
           <!-- 需求2.5.1: 第2行 -->
           <a-descriptions-item label="样品编号">
-            {{ checkObject.check_no }}
+            <a-input
+              v-model:value="editForm.check_object_union_num"
+              placeholder="请输入样品编号"
+            />
           </a-descriptions-item>
           <a-descriptions-item label="委托单位名称">
             <a-input
@@ -51,9 +54,12 @@
 
           <!-- 需求2.5.1: 第4行 -->
           <a-descriptions-item label="生产日期">
-            <a-input
+            <a-date-picker
               v-model:value="editForm.production_date"
-              placeholder="默认 /"
+              placeholder="请选择生产日期"
+              style="width: 100%"
+              format="YYYY-MM-DD"
+              :allow-clear="true"
             />
           </a-descriptions-item>
           <a-descriptions-item label="样品数量">
@@ -65,34 +71,58 @@
 
           <!-- 需求2.5.1: 第5行 -->
           <a-descriptions-item label="样品类别">
-            {{ checkObject.check_type || '-' }}
+            <a-input
+              v-model:value="editForm.check_type"
+              placeholder="请输入样品类别"
+            />
           </a-descriptions-item>
           <a-descriptions-item label="样品状态">
-            {{ getStatusText(checkObject.status) }}
+            <a-tag :color="getStatusColor(checkObject.status)">
+              {{ getStatusText(checkObject.status) }}
+            </a-tag>
           </a-descriptions-item>
 
           <!-- 需求2.5.1: 第6行 -->
           <a-descriptions-item label="联系人">
-            {{ checkObject.submission_person || '-' }}
+            <a-input
+              v-model:value="editForm.submission_person"
+              placeholder="请输入联系人"
+            />
           </a-descriptions-item>
           <a-descriptions-item label="联系电话">
-            {{ checkObject.submission_person_mobile || '-' }}
+            <a-input
+              v-model:value="editForm.submission_person_mobile"
+              placeholder="请输入联系电话"
+            />
           </a-descriptions-item>
 
           <!-- 需求2.5.1: 第7行 -->
           <a-descriptions-item label="收样日期">
-            {{ formatDate(checkObject.create_time) }}
+            <a-date-picker
+              v-model:value="editForm.create_time"
+              placeholder="请选择收样日期"
+              style="width: 100%"
+              format="YYYY-MM-DD HH:mm"
+              show-time
+              :allow-clear="true"
+            />
           </a-descriptions-item>
           <a-descriptions-item label="检测日期">
-            <a-input
+            <a-date-picker
               v-model:value="editForm.inspection_date"
-              placeholder="请输入检测日期"
+              placeholder="请选择检测日期"
+              style="width: 100%"
+              format="YYYY-MM-DD"
+              :allow-clear="true"
             />
           </a-descriptions-item>
 
           <!-- 需求2.5.1: 第8行 -->
           <a-descriptions-item label="车牌号">
-            {{ checkObject.submission_goods_car_number || '-' }}
+            <a-input
+              v-model:value="editForm.submission_goods_car_number"
+              placeholder="请输入车牌号"
+            />
           </a-descriptions-item>
           <a-descriptions-item label="备注">
             <a-textarea
@@ -268,11 +298,18 @@ const editForm = reactive({
   sample_name: '',
   company_name: '',
   remark: '',
+  // 需求: 所有样品基本信息字段都可编辑
+  check_object_union_num: '',
+  check_type: '',
+  submission_person: '',
+  submission_person_mobile: '',
+  submission_goods_car_number: '',
+  create_time: null as any,
   // 需求2.5.1: 新增字段
   commission_unit_address: '',
-  production_date: '/',
+  production_date: null as any,
   sample_quantity: '',
-  inspection_date: '',
+  inspection_date: null as any,
   // 需求2.5.2: 检测项目（可编辑）
   check_items: [] as any[],
   // 需求2.5.3: 总体检测结果和报告
@@ -342,11 +379,19 @@ async function loadDetail() {
     editForm.sample_name = data.sample_name || '';
     editForm.company_name = data.company_name || '';
     editForm.remark = data.remark || '';
+    // 所有样品基本信息字段都可编辑
+    editForm.check_object_union_num = data.check_object_union_num || '';
+    editForm.check_type = data.check_type || '';
+    editForm.submission_person = data.submission_person || '';
+    editForm.submission_person_mobile = data.submission_person_mobile || '';
+    editForm.submission_goods_car_number = data.submission_goods_car_number || '';
+    // 日期字段转换为dayjs对象
+    editForm.create_time = data.create_time ? dayjs(data.create_time) : null;
     // 需求2.5.1: 初始化新字段
     editForm.commission_unit_address = data.commission_unit_address || '';
-    editForm.production_date = data.production_date || '/';
+    editForm.production_date = data.production_date && data.production_date !== '/' ? dayjs(data.production_date) : null;
     editForm.sample_quantity = data.sample_quantity || '';
-    editForm.inspection_date = data.inspection_date || '';
+    editForm.inspection_date = data.inspection_date ? dayjs(data.inspection_date) : null;
     // 需求2.5.2: 初始化检测项目（可编辑）
     editForm.check_items = data.check_items ? JSON.parse(JSON.stringify(data.check_items)) : [];
     // 需求2.5.3: 初始化总体检测结果
@@ -382,15 +427,22 @@ async function handleSave() {
 
     // Step 2: 保存所有修改
     await updateCheckObject(checkObject.value.id, {
-      // 样品基本信息
+      // 样品基本信息（所有字段都可编辑）
       sample_name: editForm.sample_name,
       company_name: editForm.company_name,
       remark: editForm.remark,
+      check_object_union_num: editForm.check_object_union_num,
+      check_type: editForm.check_type,
+      submission_person: editForm.submission_person,
+      submission_person_mobile: editForm.submission_person_mobile,
+      submission_goods_car_number: editForm.submission_goods_car_number,
+      // 日期字段转换为字符串
+      create_time: editForm.create_time ? editForm.create_time.format('YYYY-MM-DD HH:mm:ss') : null,
       // 需求2.5.1: 新增字段
       commission_unit_address: editForm.commission_unit_address,
-      production_date: editForm.production_date,
+      production_date: editForm.production_date ? editForm.production_date.format('YYYY-MM-DD') : '/',
       sample_quantity: editForm.sample_quantity,
-      inspection_date: editForm.inspection_date,
+      inspection_date: editForm.inspection_date ? editForm.inspection_date.format('YYYY-MM-DD') : null,
       // 需求2.5.3: 总体检测结果和报告URL
       check_result: editForm.check_result,
       check_result_url: reportUrl,

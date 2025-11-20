@@ -83,6 +83,7 @@ class CheckObjectDetailResponse(BaseModel):
     production_date: Optional[str] = "/"           # 生产日期，默认"/"
     sample_quantity: Optional[str] = None          # 样品数量
     inspection_date: Optional[str] = None          # 检测日期
+    remark: Optional[str] = None                   # 备注
 
     check_items: List[CheckObjectItemResponse] = []
     create_time: datetime
@@ -101,6 +102,14 @@ class CheckObjectUpdate(BaseModel):
     grade: Optional[str] = None
     remark: Optional[str] = None
     status: Optional[int] = None
+
+    # 需求: 所有样品基本信息字段都可编辑
+    check_object_union_num: Optional[str] = None
+    check_type: Optional[str] = None
+    submission_person: Optional[str] = None
+    submission_person_mobile: Optional[str] = None
+    submission_goods_car_number: Optional[str] = None
+    create_time: Optional[str] = None
 
     # 需求2.5.1新增字段
     commission_unit_address: Optional[str] = None  # 委托单位地址

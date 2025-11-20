@@ -49,6 +49,7 @@ class CheckObject(Base):
     production_date = Column(String(50), nullable=True, server_default='/')  # 生产日期，默认"/"
     sample_quantity = Column(String(50), nullable=True)  # 样品数量
     inspection_date = Column(String(50), nullable=True)  # 检测日期
+    remark = Column(Text, nullable=True)  # 备注
 
     # Metadata
     create_admin = Column(String(100), nullable=True)
