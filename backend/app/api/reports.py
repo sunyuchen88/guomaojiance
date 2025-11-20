@@ -101,18 +101,18 @@ async def download_report(
 
     # Find check object
     check_object = db.query(CheckObject).filter(
-        CheckObject.check_no == check_no
+        CheckObject.check_object_union_num == check_no
     ).first()
 
     if not check_object:
         raise HTTPException(status_code=404, detail="检测对象不存在")
 
-    if not check_object.report_url:
+    if not check_object.check_result_url:
         raise HTTPException(status_code=404, detail="报告文件不存在")
 
     # Convert URL to file path
     file_service = FileService()
-    file_path = check_object.report_url.replace("/reports/", "")
+    file_path = check_object.check_result_url.replace("/reports/", "")
     full_path = os.path.join(file_service.reports_dir, file_path)
 
     if not os.path.exists(full_path):
@@ -179,17 +179,17 @@ async def export_excel(
                 query = query.filter(CheckObject.status == filters["status"])
             if filters.get("company"):
                 query = query.filter(
-                    CheckObject.company_name.ilike(f"%{filters['company']}%")
+                    CheckObject.submission_person_company.ilike(f"%{filters['company']}%")
                 )
             if filters.get("check_no"):
-                query = query.filter(CheckObject.check_no == filters["check_no"])
+                query = query.filter(CheckObject.check_object_union_num == filters["check_no"])
             if filters.get("start_date"):
                 query = query.filter(
-                    CheckObject.sampling_time >= filters["start_date"]
+                    CheckObject.check_start_time >= filters["start_date"]
                 )
             if filters.get("end_date"):
                 query = query.filter(
-                    CheckObject.sampling_time <= filters["end_date"]
+                    CheckObject.check_start_time <= filters["end_date"]
                 )
 
             check_objects = query.all()
