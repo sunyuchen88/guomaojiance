@@ -27,8 +27,103 @@
    - `inspection_date` - 检测日期
 
 ✅ 创建数据库迁移脚本: `backend/migrations/add_sample_basic_info_fields.sql`
+✅ 执行数据库迁移，字段已成功添加
 
-## 🔄 待实施工作清单
+### 3. Phase 1: 后端API调整 (已完成 - 2025-11-20)
+✅ 更新CheckObject Schema添加4个新字段 (`backend/app/schemas/check_object.py`)
+✅ 更新check-objects列表API添加check_result筛选参数 (`backend/app/api/check_objects.py`)
+✅ 新增批量下载报告API (`backend/app/api/reports.py`)
+   - POST /api/v1/reports/batch-download
+   - 支持6个筛选维度（status, company, check_no, start_date, end_date, check_result）
+   - 返回ZIP格式的报告包
+✅ 后端服务验证通过，正常启动
+
+**提交**: commit 919b0c1 - "feat: 实现需求2.3和2.4 - 列表页筛选增强和批量下载"
+
+### 4. Phase 2: 前端列表页调整 (已完成 - 2025-11-20)
+✅ QueryFilter组件添加"检测结果"筛选下拉框 (`frontend/src/components/QueryFilter.vue`)
+✅ checkObject store更新支持checkResult筛选 (`frontend/src/stores/checkObject.ts`)
+✅ checkService添加check_result查询参数 (`frontend/src/services/checkService.ts`)
+✅ 创建BatchDownloadButton组件 (`frontend/src/components/BatchDownloadButton.vue`)
+✅ DashboardView调整按钮布局：[获取数据] [导出Excel] [报告下载]
+✅ 添加batchDownloadReports API函数
+
+**提交**: commit 919b0c1 - "feat: 实现需求2.3和2.4 - 列表页筛选增强和批量下载"
+
+### 5. Phase 3: 前端详情页调整 (已完成 - 2025-11-20)
+✅ 更新CheckObjectDetail和CheckObjectUpdateData接口 (`frontend/src/services/checkService.ts`)
+✅ CheckDetailView.vue添加4个新字段的显示和编辑:
+   - 委托单位地址 (commission_unit_address) - 可编辑
+   - 生产日期 (production_date) - 可编辑，默认"/"
+   - 样品数量 (sample_quantity) - 可编辑
+   - 检测日期 (inspection_date) - 可编辑
+✅ editForm添加新字段
+✅ loadDetail函数初始化新字段
+✅ handleSave函数保存新字段
+
+**提交**: commit 37ed6a0 - "feat: 实现需求2.5.1 - 详情页新增4个样品基本信息字段"
+
+## ✅ 实施总结
+
+### 已完成的需求功能
+
+**需求2.3: 新增筛选维度** ✅
+- ✅ 检测结果筛选（合格/不合格）
+- ✅ 采样时间段筛选（start_date/end_date）
+
+**需求2.4: 批量下载报告** ✅
+- ✅ 后端API支持批量下载
+- ✅ 前端BatchDownloadButton组件
+- ✅ 支持多维度筛选后批量下载
+- ✅ ZIP格式打包下载
+
+**需求2.5.1: 详情页样品基本信息新增字段** ✅
+- ✅ 委托单位地址（可编辑）
+- ✅ 生产日期（可编辑，默认"/"）
+- ✅ 样品数量（可编辑）
+- ✅ 检测日期（可编辑）
+
+### 修改的文件清单
+
+**后端文件**:
+1. `backend/app/models/check_object.py` - 添加4个新字段到模型
+2. `backend/app/schemas/check_object.py` - 更新Schema支持新字段和筛选
+3. `backend/app/api/check_objects.py` - 添加check_result筛选参数
+4. `backend/app/api/reports.py` - 新增批量下载API
+5. `backend/migrations/add_sample_basic_info_fields.sql` - 数据库迁移脚本
+
+**前端文件**:
+1. `frontend/src/components/QueryFilter.vue` - 添加检测结果筛选
+2. `frontend/src/components/BatchDownloadButton.vue` - 批量下载组件（新建）
+3. `frontend/src/stores/checkObject.ts` - 支持checkResult筛选
+4. `frontend/src/services/checkService.ts` - 添加check_result参数和批量下载API
+5. `frontend/src/views/DashboardView.vue` - 调整按钮布局
+6. `frontend/src/views/CheckDetailView.vue` - 添加4个新字段
+
+**总计**: 11个文件修改/新建
+
+### 后续建议
+
+#### 1. 测试验证
+建议在测试环境进行以下测试：
+- [ ] 数据同步功能测试
+- [ ] 列表页筛选功能测试（包括检测结果筛选）
+- [ ] 批量下载报告功能测试
+- [ ] 详情页新字段显示和保存测试
+- [ ] 检测结果录入和提交测试
+
+#### 2. 需求2.5.2说明
+**关于检测项目字段映射**: 实施指南中提到的字段映射变化（unit从reference_values取值，detection_limit从fee取值）未在本次实施中包含，原因：
+- 此映射变化可能影响现有数据显示
+- 需要与业务方确认字段来源的准确性
+- 建议作为独立任务单独评估和实施
+
+#### 3. 数据迁移注意事项
+- 新增的4个字段默认为NULL（除production_date默认为'/'）
+- 对于已存在的检测对象，这些字段需要手动填写或通过数据导入补充
+- 建议制定数据补充计划
+
+## 🔄 可选的待实施工作
 
 ### Phase 1: 后端API调整 (2-3小时)
 
