@@ -71,14 +71,16 @@
               <template v-else-if="column.key === 'action'">
                 <a-space>
                   <a-button type="link" size="small" @click="handleViewDetail(record.id)">
-                    查看详情
+                    编辑
                   </a-button>
-                  <DownloadButton
-                    v-if="record.report_url"
-                    :check-no="record.check_no"
-                    :report-url="record.report_url"
+                  <a-button
+                    v-if="record.status === 1"
+                    type="link"
                     size="small"
-                  />
+                    @click="handleSubmit(record.id)"
+                  >
+                    提交检测
+                  </a-button>
                 </a-space>
               </template>
             </template>
@@ -106,14 +108,13 @@ import { InboxOutlined } from '@ant-design/icons-vue';
 import { useUserStore } from '@/stores/user';
 import { useCheckObjectStore } from '@/stores/checkObject';
 import { logout as logoutApi } from '@/services/authService';
-import { getStatusText, getStatusColor, type ExportExcelParams, type BatchDownloadParams } from '@/services/checkService';
+import { getStatusText, getStatusColor, submitResult, type ExportExcelParams, type BatchDownloadParams } from '@/services/checkService';
 import type { SyncResponse } from '@/services/syncService';
 import DataSyncButton from '@/components/DataSyncButton.vue';
 import QueryFilter from '@/components/QueryFilter.vue';
 import PaginationTable from '@/components/PaginationTable.vue';
 import ExportButton from '@/components/ExportButton.vue';
 import BatchDownloadButton from '@/components/BatchDownloadButton.vue';
-import DownloadButton from '@/components/DownloadButton.vue';
 import dayjs from 'dayjs';
 
 const router = useRouter();
@@ -288,6 +289,17 @@ function handlePaginationChange(pagination: { page: number; pageSize: number }) 
 
 function handleViewDetail(id: number) {
   router.push(`/check-detail/${id}`);
+}
+
+async function handleSubmit(id: number) {
+  try {
+    await submitResult(id);
+    message.success('提交成功');
+    loadData();
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.detail || error.message || '提交失败';
+    message.error(errorMessage);
+  }
 }
 
 function formatDate(dateStr: string | null): string {

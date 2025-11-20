@@ -32,9 +32,7 @@
     <a-spin :spinning="loading">
       <a-card v-if="checkObject" title="样品基本信息">
         <a-descriptions :column="2" bordered>
-          <a-descriptions-item label="检测编号">
-            {{ checkObject.check_no }}
-          </a-descriptions-item>
+          <!-- 需求2.5.1: 第1行 -->
           <a-descriptions-item label="状态">
             <a-tag :color="getStatusColor(checkObject.status)">
               {{ getStatusText(checkObject.status) }}
@@ -46,33 +44,27 @@
               placeholder="请输入样品名称"
             />
           </a-descriptions-item>
-          <a-descriptions-item label="公司/个体">
+
+          <!-- 需求2.5.1: 第2行 -->
+          <a-descriptions-item label="样品编号">
+            {{ checkObject.check_no }}
+          </a-descriptions-item>
+          <a-descriptions-item label="委托单位名称">
             <a-input
               v-model:value="editForm.company_name"
-              placeholder="请输入公司名称"
+              placeholder="请输入委托单位名称"
             />
           </a-descriptions-item>
-          <a-descriptions-item label="样品来源">
-            {{ checkObject.sample_source || '-' }}
-          </a-descriptions-item>
-          <a-descriptions-item label="规格型号">
-            {{ checkObject.specs || '-' }}
-          </a-descriptions-item>
-          <a-descriptions-item label="采样时间">
-            {{ formatDate(checkObject.sampling_time) }}
-          </a-descriptions-item>
-          <a-descriptions-item label="采样地点">
-            {{ checkObject.sampling_site || '-' }}
-          </a-descriptions-item>
-          <a-descriptions-item label="委托单位" :span="2">
-            {{ checkObject.commissioning_unit || '-' }}
-          </a-descriptions-item>
+
+          <!-- 需求2.5.1: 第3行 -->
           <a-descriptions-item label="委托单位地址" :span="2">
             <a-input
               v-model:value="editForm.commission_unit_address"
               placeholder="请输入委托单位地址"
             />
           </a-descriptions-item>
+
+          <!-- 需求2.5.1: 第4行 -->
           <a-descriptions-item label="生产日期">
             <a-input
               v-model:value="editForm.production_date"
@@ -85,22 +77,39 @@
               placeholder="请输入样品数量"
             />
           </a-descriptions-item>
+
+          <!-- 需求2.5.1: 第5行 -->
+          <a-descriptions-item label="样品类别">
+            {{ checkObject.check_type || '-' }}
+          </a-descriptions-item>
+          <a-descriptions-item label="样品状态">
+            {{ getStatusText(checkObject.status) }}
+          </a-descriptions-item>
+
+          <!-- 需求2.5.1: 第6行 -->
+          <a-descriptions-item label="联系人">
+            {{ checkObject.submission_person || '-' }}
+          </a-descriptions-item>
+          <a-descriptions-item label="联系电话">
+            {{ checkObject.submission_person_mobile || '-' }}
+          </a-descriptions-item>
+
+          <!-- 需求2.5.1: 第7行 -->
+          <a-descriptions-item label="收样日期">
+            {{ formatDate(checkObject.create_time) }}
+          </a-descriptions-item>
           <a-descriptions-item label="检测日期">
             <a-input
               v-model:value="editForm.inspection_date"
               placeholder="请输入检测日期"
             />
           </a-descriptions-item>
-          <a-descriptions-item label="检验结果">
-            {{ checkObject.check_result || '待检测' }}
+
+          <!-- 需求2.5.1: 第8行 -->
+          <a-descriptions-item label="车牌号">
+            {{ checkObject.submission_goods_car_number || '-' }}
           </a-descriptions-item>
-          <a-descriptions-item label="报告链接">
-            <a v-if="checkObject.report_url" :href="checkObject.report_url" target="_blank">
-              查看报告
-            </a>
-            <span v-else>-</span>
-          </a-descriptions-item>
-          <a-descriptions-item label="备注" :span="2">
+          <a-descriptions-item label="备注">
             <a-textarea
               v-model:value="editForm.remark"
               placeholder="请输入备注"

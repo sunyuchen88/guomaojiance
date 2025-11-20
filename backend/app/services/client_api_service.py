@@ -248,16 +248,29 @@ class ClientAPIService:
         }
 
         # 解析检测项目
+        # 需求2.5.2: 字段映射从 data:list:objectItems:checkItem 中取值
         check_items = []
-        items_data = api_data.get("check_items") or api_data.get("item") or []
+        items_data = api_data.get("objectItems") or api_data.get("check_items") or api_data.get("item") or []
 
         for item_data in items_data:
+            # 获取嵌套的checkItem对象（客户API返回格式）
+            check_item = item_data.get("checkItem") or item_data
+
             check_items.append({
                 "check_object_item_id": item_data.get("check_object_item_id") or item_data.get("id"),
-                "check_item_id": item_data.get("check_item_id") or item_data.get("item_id"),
-                "check_item_name": item_data.get("check_item_name") or item_data.get("item_name"),
-                "reference_value": item_data.get("reference_value"),
-                "item_indicator": item_data.get("item_indicator"),
+                # 需求2.5.2: 序号 → checkItem:item_id
+                "check_item_id": check_item.get("item_id") or check_item.get("check_item_id"),
+                # 需求2.5.2: 检验项目 → checkItem:name
+                "check_item_name": check_item.get("name") or check_item.get("check_item_name") or check_item.get("item_name"),
+                # 需求2.5.2: 单位 → checkItem:reference_values
+                "unit": check_item.get("reference_values"),
+                # 需求2.5.2: 检出限 → checkItem:fee
+                "detection_limit": check_item.get("fee"),
+                # 需求2.5.2: 检测方法 → checkItem:method_name
+                "check_method": check_item.get("method_name"),
+                # 其他字段
+                "reference_value": check_item.get("reference_value") or check_item.get("reference_values"),
+                "item_indicator": check_item.get("item_indicator"),
             })
 
         parsed["check_items"] = check_items
