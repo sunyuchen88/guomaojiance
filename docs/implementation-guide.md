@@ -65,6 +65,41 @@
 
 ## ✅ 实施总结
 
+### Phase 6: 需求合规性修复 (已完成 - 2025-11-20)
+
+在需求验证过程中发现3个关键不符项，已全部修复：
+
+**P0-1: 修复检测项目字段映射错误** ✅
+- 问题：需求2.5.2要求从嵌套的`objectItems:checkItem`结构中取值
+- 修复：更新`client_api_service.py`的`parse_check_object()`方法
+  - `unit` ← `checkItem.reference_values`（原来错误地从`unit`字段取值）
+  - `detection_limit` ← `checkItem.fee`（原来错误地从`detection_limit`字段取值）
+- 文件：`backend/app/services/client_api_service.py` (第252-274行)
+
+**P0-2: 补全详情页缺少的5个字段** ✅
+- 问题：需求2.5.1要求14个字段，实际只显示了9个
+- 修复：添加缺失字段到`CheckDetailView.vue`
+  - 样品类别 (`check_type`) - 只读
+  - 联系人 (`submission_person`) - 只读
+  - 联系电话 (`submission_person_mobile`) - 只读
+  - 收样日期 (`create_time`) - 只读
+  - 车牌号 (`submission_goods_car_number`) - 只读
+- 调整：按需求2.5.1重新排列字段顺序
+- 文件：`frontend/src/views/CheckDetailView.vue` (第33-119行)
+
+**P0-3: 修复列表页操作列按钮** ✅
+- 问题：按钮标签和功能不符合需求2.1和2.6
+- 修复：
+  - "查看详情" → "编辑"
+  - 移除单个`DownloadButton`（需求2.4要求批量下载在右上方）
+  - 添加"提交检测"按钮（`status=1`时显示）
+  - 实现`handleSubmit()`函数
+- 文件：`frontend/src/views/DashboardView.vue` (第71-84行, 第111行, 第294-303行)
+
+**提交**: commit 0a0e4b8 - "fix: 修复3个需求不符项 - 字段映射、详情页字段、列表页按钮"
+
+---
+
 ### 已完成的需求功能
 
 **需求2.3: 新增筛选维度** ✅
@@ -91,16 +126,17 @@
 3. `backend/app/api/check_objects.py` - 添加check_result筛选参数
 4. `backend/app/api/reports.py` - 新增批量下载API
 5. `backend/migrations/add_sample_basic_info_fields.sql` - 数据库迁移脚本
+6. `backend/app/services/client_api_service.py` - 修复字段映射（Phase 6）
 
 **前端文件**:
 1. `frontend/src/components/QueryFilter.vue` - 添加检测结果筛选
 2. `frontend/src/components/BatchDownloadButton.vue` - 批量下载组件（新建）
 3. `frontend/src/stores/checkObject.ts` - 支持checkResult筛选
 4. `frontend/src/services/checkService.ts` - 添加check_result参数和批量下载API
-5. `frontend/src/views/DashboardView.vue` - 调整按钮布局
-6. `frontend/src/views/CheckDetailView.vue` - 添加4个新字段
+5. `frontend/src/views/DashboardView.vue` - 调整按钮布局（Phase 2）+ 修复操作列按钮（Phase 6）
+6. `frontend/src/views/CheckDetailView.vue` - 添加4个新字段（Phase 3）+ 补全5个缺失字段（Phase 6）
 
-**总计**: 11个文件修改/新建
+**总计**: 12个文件修改/新建
 
 ### 后续建议
 
