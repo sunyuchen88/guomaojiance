@@ -194,6 +194,7 @@ export async function submitResult(id: number): Promise<{ success: boolean; mess
 
 /**
  * Get status text
+ * 需求2.3: 4种状态（待检测、已检测、提交成功、提交失败）
  */
 export function getStatusText(status: number): string {
   switch (status) {
@@ -202,7 +203,9 @@ export function getStatusText(status: number): string {
     case 1:
       return '已检测';
     case 2:
-      return '已提交';
+      return '提交成功';
+    case 3:
+      return '提交失败';
     default:
       return '未知';
   }
@@ -210,6 +213,7 @@ export function getStatusText(status: number): string {
 
 /**
  * Get status color for Ant Design
+ * 需求2.3: 4种状态对应的颜色
  */
 export function getStatusColor(status: number): string {
   switch (status) {
@@ -219,6 +223,8 @@ export function getStatusColor(status: number): string {
       return 'processing';
     case 2:
       return 'success';
+    case 3:
+      return 'error';
     default:
       return 'default';
   }

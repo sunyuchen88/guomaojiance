@@ -37,7 +37,7 @@ class CheckObject(Base):
     # Check information
     check_type = Column(String(50), nullable=True)
     status = Column(SmallInteger, nullable=False, server_default='0', index=True)
-    # status: 0=待检测, 1=已检测, 2=已提交
+    # status: 0=待检测, 1=已检测, 2=提交成功, 3=提交失败 (需求2.3: 4种状态)
     is_receive = Column(SmallInteger, nullable=True, server_default='1')
     check_start_time = Column(TIMESTAMP, nullable=True, index=True)
     check_end_time = Column(TIMESTAMP, nullable=True)

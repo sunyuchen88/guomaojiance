@@ -10,7 +10,8 @@
       >
         <a-select-option :value="0">待检测</a-select-option>
         <a-select-option :value="1">已检测</a-select-option>
-        <a-select-option :value="2">已提交</a-select-option>
+        <a-select-option :value="2">提交成功</a-select-option>
+        <a-select-option :value="3">提交失败</a-select-option>
       </a-select>
     </a-form-item>
 

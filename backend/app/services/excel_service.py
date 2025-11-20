@@ -112,13 +112,13 @@ class ExcelExportService:
     ) -> Dict[str, Any]:
         """Create a row dictionary from check object and item"""
         return {
-            "sample_name": check_object.sample_name or "",
-            "company_name": check_object.company_name or "",
+            "sample_name": check_object.submission_goods_name or "",
+            "company_name": check_object.submission_person_company or "",
             "check_item_name": check_item.check_item_name if check_item else "",
             "check_result": check_object.check_result or "",
             "item_result": check_item.check_result if check_item else "",
-            "sampling_time": self._format_date(check_object.sampling_time),
-            "check_no": check_object.check_no or "",
+            "sampling_time": self._format_date(check_object.check_start_time),
+            "check_no": check_object.check_object_union_num or "",
             "check_method": check_item.check_method if check_item else ""
         }
 
@@ -144,17 +144,17 @@ class ExcelExportService:
                 query = query.filter(CheckObject.status == filters["status"])
             if filters.get("company"):
                 query = query.filter(
-                    CheckObject.company_name.ilike(f"%{filters['company']}%")
+                    CheckObject.submission_person_company.ilike(f"%{filters['company']}%")
                 )
             if filters.get("check_no"):
-                query = query.filter(CheckObject.check_no == filters["check_no"])
+                query = query.filter(CheckObject.check_object_union_num == filters["check_no"])
             if filters.get("start_date"):
                 query = query.filter(
-                    CheckObject.sampling_time >= filters["start_date"]
+                    CheckObject.check_start_time >= filters["start_date"]
                 )
             if filters.get("end_date"):
                 query = query.filter(
-                    CheckObject.sampling_time <= filters["end_date"]
+                    CheckObject.check_start_time <= filters["end_date"]
                 )
 
         return query.all()

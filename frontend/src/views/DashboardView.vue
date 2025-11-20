@@ -74,7 +74,6 @@
                     编辑
                   </a-button>
                   <a-button
-                    v-if="record.status === 1"
                     type="link"
                     size="small"
                     @click="handleSubmit(record.id)"

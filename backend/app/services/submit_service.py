@@ -92,8 +92,12 @@ class SubmitService:
                 result = self.handle_client_response(response)
 
                 if result["success"]:
-                    # Update status to 2 (已提交)
+                    # Update status to 2 (提交成功) - 需求2.3
                     check_object.status = 2
+                    self.db.commit()
+                else:
+                    # Update status to 3 (提交失败) - 需求2.3
+                    check_object.status = 3
                     self.db.commit()
 
                 return result
@@ -105,12 +109,18 @@ class SubmitService:
                     time.sleep(delay)
                     continue
                 else:
+                    # Update status to 3 (提交失败) - 网络错误
+                    check_object.status = 3
+                    self.db.commit()
                     return {
                         "success": False,
                         "message": f"网络错误: {str(e)},已重试{self.max_retries}次"
                     }
 
             except Exception as e:
+                # Update status to 3 (提交失败) - 其他错误
+                check_object.status = 3
+                self.db.commit()
                 return {
                     "success": False,
                     "message": self.format_error_message(e)
