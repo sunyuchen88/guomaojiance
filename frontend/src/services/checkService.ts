@@ -6,11 +6,14 @@ import api from './api';
 
 export interface CheckObjectItem {
   id: number;
+  check_item_id: number | null;  // 需求2.5.2: 序号
   check_item_name: string | null;
   check_method: string | null;
-  standard_value: string | null;
+  unit: string | null;  // 需求2.5.2: 单位
+  detection_limit: string | null;  // 需求2.5.2: 检出限
   check_result: string | null;
   result_indicator: string | null;
+  standard_value?: string | null;  // 保留兼容性
 }
 
 export interface CheckObject {
@@ -48,6 +51,13 @@ export interface CheckObjectDetail extends CheckObject {
   production_date: string | null;
   sample_quantity: string | null;
   inspection_date: string | null;
+
+  // 需求2.5.1: 从API获取的字段
+  check_type: string | null;  // 样品类别
+  submission_person: string | null;  // 联系人
+  submission_person_mobile: string | null;  // 联系电话
+  create_time: string | null;  // 收样日期
+  submission_goods_car_number: string | null;  // 车牌号
 }
 
 export interface CheckObjectList {
