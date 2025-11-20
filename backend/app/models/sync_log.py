@@ -14,6 +14,8 @@ class SyncLog(Base):
     start_time = Column(TIMESTAMP, nullable=False, server_default=func.now(), index=True)
     end_time = Column(TIMESTAMP, nullable=True)
     fetched_count = Column(Integer, nullable=True, server_default='0')
+    new_count = Column(Integer, nullable=True, server_default='0')
+    updated_count = Column(Integer, nullable=True, server_default='0')
     error_message = Column(Text, nullable=True)
     operator = Column(String(100), nullable=True)  # Username who triggered manual sync
 
@@ -22,5 +24,7 @@ class SyncLog(Base):
             f"<SyncLog(id={self.id}, "
             f"sync_type='{self.sync_type}', "
             f"status='{self.status}', "
-            f"fetched_count={self.fetched_count})>"
+            f"fetched_count={self.fetched_count}, "
+            f"new_count={self.new_count}, "
+            f"updated_count={self.updated_count})>"
         )

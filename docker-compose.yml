@@ -29,6 +29,7 @@ services:
       CLIENT_SECRET: 67868790
       SERVER_DOMAIN: http://localhost:8000
       SYNC_INTERVAL_MINUTES: 30
+      USE_MOCK_CLIENT_API: "true"  # 启用模拟数据模式
     ports:
       - "8000:8000"
     volumes:

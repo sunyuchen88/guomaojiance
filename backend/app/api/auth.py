@@ -7,7 +7,7 @@ from app.services.auth_service import AuthService
 from app.api.deps import get_current_user
 from app.models.user import User
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)

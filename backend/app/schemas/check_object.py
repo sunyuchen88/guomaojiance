@@ -7,10 +7,10 @@ class CheckObjectItemResponse(BaseModel):
     """检测项目信息响应"""
     id: int
     check_item_name: Optional[str] = None
-    check_method: Optional[str] = None
-    standard_value: Optional[str] = None
-    check_result: Optional[str] = None
-    result_indicator: Optional[str] = None
+    num: Optional[str] = None
+    result: Optional[str] = None
+    reference_value: Optional[str] = None
+    item_indicator: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -29,14 +29,14 @@ class CheckObjectItemUpdate(BaseModel):
 class CheckObjectResponse(BaseModel):
     """检测样品列表项"""
     id: int
-    check_no: str
-    sample_name: Optional[str] = None
-    company_name: Optional[str] = None
+    check_object_union_num: str
+    submission_goods_name: Optional[str] = None
+    submission_person_company: Optional[str] = None
     status: int
-    sampling_time: Optional[datetime] = None
+    check_start_time: Optional[datetime] = None
     check_result: Optional[str] = None
-    report_url: Optional[str] = None
-    created_at: datetime
+    check_result_url: Optional[str] = None
+    create_time: datetime
     updated_at: Optional[datetime] = None
 
     class Config:
@@ -54,29 +54,26 @@ class CheckObjectList(BaseModel):
 class CheckObjectDetailResponse(BaseModel):
     """检测样品详细信息"""
     id: int
-    check_no: str
-    sample_name: Optional[str] = None
-    company_name: Optional[str] = None
-    sample_source: Optional[str] = None
-    sample_base_num: Optional[str] = None
-    product_date: Optional[str] = None
-    specs: Optional[str] = None
-    grade: Optional[str] = None
-    executive_standards: Optional[str] = None
-    production_license_num: Optional[str] = None
-    sampling_num: Optional[str] = None
-    sampling_site: Optional[str] = None
-    sampling_address: Optional[str] = None
-    sampling_time: Optional[datetime] = None
-    commissioning_unit: Optional[str] = None
-    is_subcontract: int = 0
-    subcontract_lab: Optional[str] = None
+    check_object_union_num: str
+    submission_goods_name: Optional[str] = None
+    submission_person_company: Optional[str] = None
+    submission_goods_area: Optional[str] = None
+    submission_goods_location: Optional[str] = None
+    submission_goods_unit: Optional[str] = None
+    submission_goods_car_number: Optional[str] = None
+    submission_method: Optional[str] = None
+    submission_person: Optional[str] = None
+    submission_person_mobile: Optional[str] = None
+    driver: Optional[str] = None
+    driver_mobile: Optional[str] = None
+    check_type: Optional[str] = None
     status: int
+    check_start_time: Optional[datetime] = None
+    check_end_time: Optional[datetime] = None
     check_result: Optional[str] = None
-    report_url: Optional[str] = None
-    remark: Optional[str] = None
+    check_result_url: Optional[str] = None
     check_items: List[CheckObjectItemResponse] = []
-    created_at: datetime
+    create_time: datetime
     updated_at: Optional[datetime] = None
 
     class Config:

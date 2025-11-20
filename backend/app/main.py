@@ -60,11 +60,11 @@ if os.path.exists(reports_dir):
 # API routes
 from app.api import auth, sync, check_objects, reports, submit
 
-app.include_router(auth.router, prefix="/api", tags=["Authentication"])
-app.include_router(sync.router, prefix="/api", tags=["Data Sync"])
-app.include_router(check_objects.router, prefix="/api", tags=["Check Objects"])
-app.include_router(reports.router, prefix="/api", tags=["Reports"])
-app.include_router(submit.router, prefix="/api", tags=["Submit Results"])
+app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
+app.include_router(sync.router, prefix="/api/v1", tags=["Data Sync"])
+app.include_router(check_objects.router, prefix="/api/v1", tags=["Check Objects"])
+app.include_router(reports.router, prefix="/api/v1", tags=["Reports"])
+app.include_router(submit.router, prefix="/api/v1", tags=["Submit Results"])
 
 
 @app.get("/")

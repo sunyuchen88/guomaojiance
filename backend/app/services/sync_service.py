@@ -99,9 +99,9 @@ class SyncService:
                 for api_data in data_list:
                     parsed_data = self.client_api_service.parse_check_object(api_data)
 
-                    # Check if record exists
+                    # Check if record exists by check_object_union_num
                     existing = self.db.query(CheckObject).filter(
-                        CheckObject.check_no == parsed_data["check_no"]
+                        CheckObject.check_object_union_num == parsed_data.get("check_object_union_num")
                     ).first()
 
                     if existing:
@@ -120,12 +120,12 @@ class SyncService:
                         check_items = parsed_data.pop("check_items", [])
                         new_obj = CheckObject(**parsed_data)
                         self.db.add(new_obj)
-                        self.db.flush()  # Get ID for items
+                        self.db.flush()  # Get check_object_id for items
 
-                        # Add check items
+                        # Add check items - use check_object_id (BigInteger), not id
                         for item_data in check_items:
                             item = CheckObjectItem(
-                                check_object_id=new_obj.id,
+                                check_object_id=new_obj.check_object_id,
                                 **item_data
                             )
                             self.db.add(item)
@@ -182,15 +182,15 @@ class SyncService:
 
     def _update_check_items(self, check_object: CheckObject, items_data: list):
         """Update check items for a check object"""
-        # Remove existing items
+        # Remove existing items - use check_object_id (BigInteger foreign key)
         self.db.query(CheckObjectItem).filter(
-            CheckObjectItem.check_object_id == check_object.id
+            CheckObjectItem.check_object_id == check_object.check_object_id
         ).delete()
 
-        # Add new items
+        # Add new items - use check_object_id (BigInteger foreign key)
         for item_data in items_data:
             item = CheckObjectItem(
-                check_object_id=check_object.id,
+                check_object_id=check_object.check_object_id,
                 **item_data
             )
             self.db.add(item)
@@ -243,8 +243,8 @@ class SyncService:
         if status:
             query = query.filter(SyncLog.status == status)
 
-        # Order by created_at descending
-        query = query.order_by(SyncLog.created_at.desc())
+        # Order by start_time descending
+        query = query.order_by(SyncLog.start_time.desc())
 
         # Get total count
         total = query.count()

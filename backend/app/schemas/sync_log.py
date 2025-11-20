@@ -27,7 +27,7 @@ class SyncLogResponse(BaseModel):
     new_count: int
     updated_count: int
     error_message: Optional[str] = None
-    created_at: datetime
+    start_time: datetime
 
     class Config:
         from_attributes = True

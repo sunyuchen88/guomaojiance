@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     # Sync Configuration
     SYNC_INTERVAL_MINUTES: int = 30
 
+    # Development Configuration
+    DEV_MODE: bool = False  # Set to True to use mock data
+    USE_MOCK_CLIENT_API: bool = False  # Use mock client API responses
+
     # Logging
     LOG_LEVEL: str = "INFO"
 

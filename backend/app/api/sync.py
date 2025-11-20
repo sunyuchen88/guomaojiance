@@ -79,20 +79,8 @@ def get_sync_logs(
         status=status
     )
 
-    # Convert models to response format
-    items = [
-        SyncLogResponse(
-            id=log.id,
-            sync_type=log.sync_type,
-            status=log.status,
-            fetched_count=log.fetched_count,
-            new_count=log.new_count,
-            updated_count=log.updated_count,
-            error_message=log.error_message,
-            created_at=log.created_at
-        )
-        for log in result["items"]
-    ]
+    # Convert models to response format using Pydantic's from_attributes
+    items = [SyncLogResponse.model_validate(log) for log in result["items"]]
 
     return SyncLogList(
         items=items,
