@@ -4,26 +4,31 @@ from typing import Optional, List
 
 
 class CheckObjectItemResponse(BaseModel):
-    """检测项目信息响应"""
+    """检测项目信息响应 - T2.2: 5个核心字段"""
     id: int
-    check_item_name: Optional[str] = None
-    num: Optional[str] = None
-    result: Optional[str] = None
-    reference_value: Optional[str] = None
-    item_indicator: Optional[str] = None
+    check_item_name: Optional[str] = None  # 1. 检测项目
+    check_method: Optional[str] = None     # 2. 检测方法
+    unit: Optional[str] = None             # 3. 单位
+    num: Optional[str] = None              # 4. 检测结果
+    detection_limit: Optional[str] = None  # 5. 检出限
+    result: Optional[str] = None           # 结果判定(合格/不合格)
+    reference_value: Optional[str] = None  # 参考值
+    item_indicator: Optional[str] = None   # 指标
 
     class Config:
         from_attributes = True
 
 
 class CheckObjectItemUpdate(BaseModel):
-    """更新检测项目"""
+    """更新检测项目 - T2.2: 支持5个核心字段"""
     id: Optional[int] = None
-    check_item_name: Optional[str] = None
-    check_method: Optional[str] = None
-    standard_value: Optional[str] = None
-    check_result: Optional[str] = None
-    result_indicator: Optional[str] = None
+    check_item_name: Optional[str] = None     # 1. 检测项目
+    check_method: Optional[str] = None        # 2. 检测方法
+    unit: Optional[str] = None                # 3. 单位
+    num: Optional[str] = None                 # 4. 检测结果
+    detection_limit: Optional[str] = None     # 5. 检出限
+    result: Optional[str] = None              # 结果判定
+    reference_value: Optional[str] = None     # 参考值
 
 
 class CheckObjectResponse(BaseModel):

@@ -162,6 +162,7 @@ import {
   updateCheckObject,
   saveCheckResult,
   submitResult,
+  uploadReport,
   getStatusText,
   getStatusColor,
   type CheckObjectDetail,
@@ -275,21 +276,47 @@ function showResultModal() {
 
 async function handleSubmitResult(data: {
   check_result: string;
-  check_items: Array<{ id: number; check_result: string; result_indicator: string }>;
+  check_items: Array<{
+    id?: number;
+    check_item_name: string;
+    check_method: string;
+    unit: string;
+    num: string;
+    detection_limit: string;
+    result: string;
+  }>;
+  report_file?: File;
 }) {
   if (!checkObject.value) return;
 
   submittingResult.value = true;
 
   try {
-    await saveCheckResult(checkObject.value.id, data);
+    // T2.2: First upload report if provided
+    let reportUrl = checkObject.value.report_url;
+    if (data.report_file) {
+      try {
+        const uploadResult = await uploadReport(data.report_file);
+        reportUrl = uploadResult.file_url;
+        message.success('报告上传成功');
+      } catch (error: any) {
+        message.error('报告上传失败: ' + (error.response?.data?.detail || error.message));
+        return;
+      }
+    }
+
+    // Then save check results
+    await saveCheckResult(checkObject.value.id, {
+      check_result: data.check_result,
+      check_items: data.check_items,
+    });
 
     // T119: Add success notification
     message.success('检测结果保存成功');
     resultModalVisible.value = false;
     loadDetail();
   } catch (error: any) {
-    message.error('保存失败');
+    message.error('保存失败: ' + (error.response?.data?.detail || error.message));
   } finally {
     submittingResult.value = false;
   }

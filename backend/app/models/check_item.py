@@ -23,6 +23,11 @@ class CheckObjectItem(Base):
     check_item_id = Column(Integer, nullable=False)
     check_item_name = Column(String(200), nullable=False)
 
+    # T2.2: 5个核心字段 - 检测项目、单位、检测结果、检出限、检测方法
+    check_method = Column(String(200), nullable=True)  # 检测方法
+    unit = Column(String(50), nullable=True)  # 单位
+    detection_limit = Column(String(100), nullable=True)  # 检出限
+
     # Check results
     num = Column(String(50), nullable=True)  # 检测结果数值
     result = Column(String(20), nullable=True)  # 合格/不合格

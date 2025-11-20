@@ -188,13 +188,21 @@ def input_check_result(
 ):
     """
     Input check result for a check object
-    T108: Update check result and set status to 1
+    T108, T2.2: Update check result with 5 core fields and set status to 1
 
     Args:
         check_object_id: ID of the check object
         result_data: {
             "check_result": str,  # Overall result
-            "check_items": [{id, check_result, result_indicator}, ...]
+            "check_items": [{
+                id,
+                check_item_name,    # 检测项目
+                check_method,       # 检测方法
+                unit,               # 单位
+                num,                # 检测结果
+                detection_limit,    # 检出限
+                result              # 结果判定
+            }, ...]
         }
     """
     # Query the check object
@@ -219,21 +227,30 @@ def input_check_result(
     # Update status to 1 (已检测)
     check_object.status = 1
 
-    # Update check items if provided
+    # Update check items if provided - T2.2: Support 5 core fields
     if "check_items" in result_data and result_data["check_items"]:
         for item_data in result_data["check_items"]:
             item_id = item_data.get("id")
             if item_id:
                 item = db.query(CheckObjectItem).filter(
                     CheckObjectItem.id == item_id,
-                    CheckObjectItem.check_object_id == check_object_id
+                    CheckObjectItem.check_object_id == check_object.check_object_id
                 ).first()
 
                 if item:
-                    if "check_result" in item_data:
-                        item.check_result = item_data["check_result"]
-                    if "result_indicator" in item_data:
-                        item.result_indicator = item_data["result_indicator"]
+                    # T2.2: Update 5 core fields
+                    if "check_item_name" in item_data:
+                        item.check_item_name = item_data["check_item_name"]
+                    if "check_method" in item_data:
+                        item.check_method = item_data["check_method"]
+                    if "unit" in item_data:
+                        item.unit = item_data["unit"]
+                    if "num" in item_data:
+                        item.num = item_data["num"]
+                    if "detection_limit" in item_data:
+                        item.detection_limit = item_data["detection_limit"]
+                    if "result" in item_data:
+                        item.result = item_data["result"]
 
     db.commit()
     db.refresh(check_object)

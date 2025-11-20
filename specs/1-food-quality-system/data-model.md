@@ -114,21 +114,26 @@
 
 **Purpose**: 存储每个样品的具体检测项目和结果
 
-| 列名                   | 类型           | 约束                           | 说明                 |
-| -------------------- | ------------ | ---------------------------- | ------------------ |
-| id                   | SERIAL       | PRIMARY KEY                  | 内部ID               |
-| check_object_item_id | BIGINT       | UNIQUE, NOT NULL             | 客户方检测项目明细ID        |
-| check_object_id      | BIGINT       | NOT NULL, FK → check_objects | 关联样品ID             |
-| check_item_id        | INTEGER      | NOT NULL                     | 检测项目ID             |
-| check_item_name      | VARCHAR(200) | NOT NULL                     | 检测项目名称(如吊白块)       |
-| num                  | VARCHAR(50)  | NULL                         | 检测结果数值(如47.90%抑制率) |
-| result               | VARCHAR(20)  | NULL                         | 结果(合格/不合格或空)       |
-| check_time           | TIMESTAMP    | NULL                         | 检测时间               |
-| check_admin          | VARCHAR(100) | NULL                         | 检测人员               |
-| status               | SMALLINT     | DEFAULT 1                    | 状态                 |
-| create_time          | TIMESTAMP    | DEFAULT NOW()                | 创建时间               |
-| reference_value      | VARCHAR(100) | NULL                         | 参考值(如15mg/kg)      |
-| item_indicator       | VARCHAR(200) | NULL                         | 指标描述               |
+**T2.2更新**: 添加5个核心字段 - 检测项目、检测方法、单位、检测结果、检出限
+
+| 列名                   | 类型           | 约束                           | 说明                       |
+| -------------------- | ------------ | ---------------------------- | ------------------------ |
+| id                   | SERIAL       | PRIMARY KEY                  | 内部ID                     |
+| check_object_item_id | BIGINT       | UNIQUE, NOT NULL             | 客户方检测项目明细ID              |
+| check_object_id      | BIGINT       | NOT NULL, FK → check_objects | 关联样品ID                   |
+| check_item_id        | INTEGER      | NOT NULL                     | 检测项目ID                   |
+| check_item_name      | VARCHAR(200) | NOT NULL                     | **T2.2** 检测项目名称(如吊白块)    |
+| check_method         | VARCHAR(200) | NULL                         | **T2.2** 检测方法(如比色法)      |
+| unit                 | VARCHAR(50)  | NULL                         | **T2.2** 单位(如mg/kg)      |
+| num                  | VARCHAR(50)  | NULL                         | **T2.2** 检测结果数值(如47.90%) |
+| detection_limit      | VARCHAR(100) | NULL                         | **T2.2** 检出限(如0.01mg/kg) |
+| result               | VARCHAR(20)  | NULL                         | 结果判定(合格/不合格或空)           |
+| check_time           | TIMESTAMP    | NULL                         | 检测时间                     |
+| check_admin          | VARCHAR(100) | NULL                         | 检测人员                     |
+| status               | SMALLINT     | DEFAULT 1                    | 状态                       |
+| create_time          | TIMESTAMP    | DEFAULT NOW()                | 创建时间                     |
+| reference_value      | VARCHAR(100) | NULL                         | 参考值(如15mg/kg)            |
+| item_indicator       | VARCHAR(200) | NULL                         | 指标描述                     |
 
 **Indexes**:
 
@@ -140,8 +145,19 @@
 
 **Validation Rules**:
 
-- `result`: NULL | '合格' | '不合格'
+- `result`: NULL | '合格' | '不合格' | '基本合格'
 - 级联删除: 删除样品时自动删除所有关联检测项目
+
+**T2.2 Requirements**:
+
+支持检测人员录入5个核心字段：
+1. 检测项目 (check_item_name)
+2. 检测方法 (check_method)
+3. 单位 (unit)
+4. 检测结果 (num)
+5. 检出限 (detection_limit)
+
+支持多行添加录入，支持上传PDF格式检测报告
 
 ---
 
