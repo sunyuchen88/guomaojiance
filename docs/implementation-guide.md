@@ -65,6 +65,83 @@
 
 ## ✅ 实施总结
 
+### Phase 7: 详情页完全重构 - 方案A (已完成 - 2025-11-20)
+
+在第二轮需求合规性检查中发现4个严重不符项（P0-4至P0-7），采用方案A进行详情页完全重构。
+
+**背景**:
+- 原实现采用"模态框编辑"架构，与需求2.5的"页面内直接编辑"设计不符
+- 需求要求所有内容可在详情页直接编辑，一次"保存修改"完成所有操作
+
+**P0-4: 修复检测项目表格列定义** ✅
+- 问题：表格列与需求2.5.2不符（缺少序号、单位/检出限字段错误）
+- 修复：
+  - 添加"序号"列（check_item_id）
+  - "标准值"→"单位"（unit）
+  - "结果判定"→"检出限"（detection_limit）
+  - 正确列顺序：序号、检验项目、单位、检测结果、检出限、检测方法
+- 文件：`frontend/src/views/CheckDetailView.vue` (第256-293行)
+
+**P0-5: 在详情页添加总体检测结果和上传报告卡片** ✅
+- 问题：需求2.5.3要求在"检测项目表单下方"直接显示，但原实现在模态框中
+- 修复：
+  - 在检测项目表格下方添加"检测结果"卡片
+  - 总体检测结果选择框（合格/不合格）
+  - 上传检测报告功能（PDF，max 10MB）
+  - 显示当前报告链接（如有）
+- 文件：`frontend/src/views/CheckDetailView.vue` (第167-201行)
+
+**P0-6: 将检测项目表格改为可编辑（inline编辑）** ✅
+- 问题：需求2.5.2明确"所有字段支持人工编辑"，但原表格是只读的
+- 修复：
+  - 将所有字段改为可编辑输入框
+  - 数据绑定到`editForm.check_items`
+  - 序号字段保持只读（作为标识）
+- 文件：`frontend/src/views/CheckDetailView.vue` (第122-165行)
+
+**P0-7: 移除详情页多余按钮** ✅
+- 问题：需求2.5.4只要求2个按钮，但原实现有4个按钮
+- 修复：
+  - 移除"录入检测结果"按钮（功能已整合到主页面）
+  - 移除"提交检测结果"按钮（应在列表页，已在P0-3实现）
+  - 仅保留"返回列表"和"保存修改"2个按钮
+- 文件：`frontend/src/views/CheckDetailView.vue` (第7-14行)
+
+**重构handleSave逻辑，一次保存所有修改** ✅
+- 需求2.5.4："保存修改"按钮保存详情页的所有修改
+- 实现：
+  - Step 1: 上传检测报告（如有新文件）
+  - Step 2: 保存样品基本信息 + 检测项目数据
+  - Step 3: 保存总体检测结果和检测项目结果
+  - 统一错误处理和成功提示
+- 文件：`frontend/src/views/CheckDetailView.vue` (第362-424行)
+
+**更新TypeScript接口** ✅
+- `CheckObjectItem`添加字段：
+  - `check_item_id: number | null` - 序号
+  - `unit: string | null` - 单位
+  - `detection_limit: string | null` - 检出限
+- `CheckObjectDetail`添加字段：
+  - `check_type: string | null` - 样品类别
+  - `submission_person: string | null` - 联系人
+  - `submission_person_mobile: string | null` - 联系电话
+  - `create_time: string | null` - 收样日期
+  - `submission_goods_car_number: string | null` - 车牌号
+- 文件：`frontend/src/services/checkService.ts` (第7-61行)
+
+**架构调整**:
+```
+原架构: 详情页（只读展示） + 模态框（编辑）
+新架构: 详情页（所有内容可直接编辑） ← 符合需求2.5设计
+```
+
+**创建文档**:
+- `docs/requirement-compliance-check-round2.md` - 详细分析报告
+
+**提交**: commit 58f4c0d - "refactor: 详情页完全重构，严格遵循需求2.5设计（方案A）"
+
+---
+
 ### Phase 6: 需求合规性修复 (已完成 - 2025-11-20)
 
 在需求验证过程中发现3个关键不符项，已全部修复：
@@ -132,11 +209,14 @@
 1. `frontend/src/components/QueryFilter.vue` - 添加检测结果筛选
 2. `frontend/src/components/BatchDownloadButton.vue` - 批量下载组件（新建）
 3. `frontend/src/stores/checkObject.ts` - 支持checkResult筛选
-4. `frontend/src/services/checkService.ts` - 添加check_result参数和批量下载API
+4. `frontend/src/services/checkService.ts` - 添加check_result参数、批量下载API（Phase 2）+ 更新接口定义（Phase 7）
 5. `frontend/src/views/DashboardView.vue` - 调整按钮布局（Phase 2）+ 修复操作列按钮（Phase 6）
-6. `frontend/src/views/CheckDetailView.vue` - 添加4个新字段（Phase 3）+ 补全5个缺失字段（Phase 6）
+6. `frontend/src/views/CheckDetailView.vue` - 添加4个新字段（Phase 3）+ 补全5个缺失字段（Phase 6）+ 完全重构（Phase 7）
 
-**总计**: 12个文件修改/新建
+**文档文件**:
+7. `docs/requirement-compliance-check-round2.md` - 第二轮合规性检查报告（Phase 7新建）
+
+**总计**: 13个文件修改/新建
 
 ### 后续建议
 
