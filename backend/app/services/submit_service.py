@@ -64,25 +64,28 @@ class SubmitService:
             CheckObjectItem.check_object_id == check_object_id
         ).all()
 
-        # Format check items
-        formatted_items = self.format_check_items([
-            {
-                "check_item_name": item.check_item_name,
-                "check_result": item.check_result,
-                "result_indicator": item.result_indicator
-            }
-            for item in check_items
-        ])
-
         # Submit with retry logic (T128)
         for attempt in range(self.max_retries):
             try:
-                # Call client API
+                # Prepare check object data for client API
+                check_object_data = {
+                    "check_object_union_num": check_object.check_no,
+                    "check_result": check_object.check_result,
+                    "check_result_url": check_object.report_url or "",
+                    "check_items": [
+                        {
+                            "check_item_id": item.check_item_id,
+                            "check_item_name": item.check_item_name,
+                            "result": item.check_result or "",
+                            "num": item.result_indicator or ""
+                        }
+                        for item in check_items
+                    ]
+                }
+
+                # Call client API with list of check objects
                 response = self.client_api_service.submit_check_result(
-                    check_no=check_object.check_no,
-                    check_result=check_object.check_result,
-                    check_items=formatted_items,
-                    report_url=check_object.report_url
+                    [check_object_data]  # Wrap in list as expected by API
                 )
 
                 # Handle response
