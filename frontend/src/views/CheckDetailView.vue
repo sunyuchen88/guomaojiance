@@ -391,6 +391,9 @@ async function handleSave() {
       production_date: editForm.production_date,
       sample_quantity: editForm.sample_quantity,
       inspection_date: editForm.inspection_date,
+      // 需求2.5.3: 总体检测结果和报告URL
+      check_result: editForm.check_result,
+      check_result_url: reportUrl,
       // 需求2.5.2: 检测项目
       check_items: editForm.check_items.map(item => ({
         id: item.id,

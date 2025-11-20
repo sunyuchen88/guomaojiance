@@ -108,6 +108,10 @@ class CheckObjectUpdate(BaseModel):
     sample_quantity: Optional[str] = None          # 样品数量
     inspection_date: Optional[str] = None          # 检测日期
 
+    # 需求2.5.3: 总体检测结果和报告URL
+    check_result: Optional[str] = None             # 总体检测结果（合格/不合格）
+    check_result_url: Optional[str] = None         # 检测报告URL
+
     check_items: Optional[List[CheckObjectItemUpdate]] = None
 
 

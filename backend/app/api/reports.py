@@ -9,6 +9,7 @@ T142-T144: POST /reports/export-excel - Export to Excel
 import os
 import io
 import zipfile
+import logging
 from typing import List, Optional
 from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Body
@@ -21,6 +22,8 @@ from app.services.file_service import FileService
 from app.services.excel_service import ExcelExportService, generate_export_filename
 from app.models.user import User
 from app.models.check_object import CheckObject
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -234,12 +237,16 @@ async def export_excel(
         # T146: Generate filename
         filename = generate_export_filename()
 
+        # URL encode filename for Content-Disposition header
+        from urllib.parse import quote
+        encoded_filename = quote(filename)
+
         # Return file as streaming response
         return StreamingResponse(
             iter([excel_bytes]),
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={
-                "Content-Disposition": f"attachment; filename*=UTF-8''{filename}"
+                "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
             }
         )
 
@@ -247,6 +254,9 @@ async def export_excel(
         raise
 
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        logger.error(f"Export Excel failed: {str(e)}\n{error_trace}")
         raise HTTPException(
             status_code=500,
             detail=f"导出失败: {str(e)}"
@@ -330,9 +340,11 @@ async def batch_download_reports(
                     })
 
         if not pdf_files:
+            # Count objects without URL
+            no_url_count = sum(1 for obj in check_objects if not obj.check_result_url)
             raise HTTPException(
                 status_code=404,
-                detail="没有找到可下载的报告文件"
+                detail=f"没有找到可下载的报告文件。共{len(check_objects)}个检测对象，{no_url_count}个未上传报告"
             )
 
         # Create ZIP file in memory
@@ -345,15 +357,17 @@ async def batch_download_reports(
 
         # Generate filename with timestamp
         from datetime import datetime
+        from urllib.parse import quote
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         zip_filename = f"reports_batch_{timestamp}.zip"
+        encoded_zip_filename = quote(zip_filename)
 
         # Return ZIP file
         return StreamingResponse(
             iter([zip_buffer.getvalue()]),
             media_type="application/zip",
             headers={
-                "Content-Disposition": f"attachment; filename*=UTF-8''{zip_filename}"
+                "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_zip_filename}"
             }
         )
 
@@ -361,6 +375,9 @@ async def batch_download_reports(
         raise
 
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        logger.error(f"Batch download failed: {str(e)}\n{error_trace}")
         raise HTTPException(
             status_code=500,
             detail=f"批量下载失败: {str(e)}"
