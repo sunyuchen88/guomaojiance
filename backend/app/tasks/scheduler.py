@@ -1,8 +1,9 @@
 """
 APScheduler Setup
 T084: Implement APScheduler setup
-- 30-minute interval job calling SyncService
-- Storage monitoring job
+- Daily job at 2:00 AM calling SyncService (每天自动同步一次)
+- Storage monitoring job at 3:00 AM
+- Manual sync available via API endpoint
 """
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -30,7 +31,7 @@ def get_scheduler() -> BackgroundScheduler:
 def auto_sync_task():
     """
     Task for automatic data synchronization
-    Runs every 30 minutes
+    Runs daily at 2:00 AM (每天凌晨2点自动同步一次)
     """
     logger.info("Starting automatic sync task")
 
@@ -95,28 +96,28 @@ def setup_scheduler(scheduler: BackgroundScheduler):
     # Remove existing jobs to avoid duplicates
     existing_jobs = {job.id for job in scheduler.get_jobs()}
 
-    # Add sync job - every 30 minutes
+    # Add sync job - daily at 2:00 AM (每天自动同步一次)
     if "auto_sync_job" not in existing_jobs:
         scheduler.add_job(
             auto_sync_task,
-            trigger=IntervalTrigger(minutes=30),
+            trigger=CronTrigger(hour=2, minute=0),
             id="auto_sync_job",
             name="Automatic Data Sync",
             replace_existing=True,
             max_instances=1  # Prevent concurrent runs
         )
-        logger.info("Added auto sync job (30-minute interval)")
+        logger.info("Added auto sync job (daily at 2:00 AM)")
 
-    # Add storage monitoring job - daily at 2:00 AM
+    # Add storage monitoring job - daily at 3:00 AM
     if "storage_monitor_job" not in existing_jobs:
         scheduler.add_job(
             storage_monitor_task,
-            trigger=CronTrigger(hour=2, minute=0),
+            trigger=CronTrigger(hour=3, minute=0),
             id="storage_monitor_job",
             name="Storage Monitoring",
             replace_existing=True
         )
-        logger.info("Added storage monitor job (daily at 2:00 AM)")
+        logger.info("Added storage monitor job (daily at 3:00 AM)")
 
 
 def start_scheduler():

@@ -126,10 +126,18 @@ class ClientAPIService:
             )
 
             logger.info(f"API Response status: {response.status_code}")
-            logger.debug(f"API Response text (first 500 chars): {response.text[:500]}")
 
             response.raise_for_status()
-            return response.json()
+
+            # Parse JSON response
+            try:
+                json_response = response.json()
+                return json_response
+            except Exception as e:
+                logger.error(f"Failed to parse JSON response: {str(e)}")
+                logger.error(f"Response content type: {response.headers.get('content-type')}")
+                logger.error(f"Response text (first 500 chars): {response.text[:500]}")
+                raise
 
     def fetch_check_objects(
         self,
@@ -158,10 +166,11 @@ class ClientAPIService:
 
         endpoint = "/admin/api/test/check/data"
 
-        # 准备业务数据 - 使用时间范围查询
-        now = datetime.now()
-        start_time = (now - timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S")
-        end_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        # 准备业务数据 - 固定起始时间，截止时间为系统当天
+        # 起始时间：2025年1月1日
+        # 截止时间：系统当天
+        start_time = "2025-01-01 00:00:00"
+        end_time = datetime.now().strftime("%Y-%m-%d 23:59:59")
 
         biz_data = {
             "start_time": start_time,
@@ -169,24 +178,41 @@ class ClientAPIService:
             "limit": page_size
         }
 
+        logger.info(f"Fetching check objects: {start_time} to {end_time}, limit: {page_size}")
+
         try:
             response = self._make_request(endpoint, biz_data)
 
             # 转换响应格式以匹配内部期望的格式
             if response.get("status") == 200:
-                data_list = response.get("data", [])
+                # API返回格式：{"status": 200, "message": "success", "data": {"count": X, "list": [...]}}
+                data = response.get("data", {})
+
+                # 提取list和count
+                if isinstance(data, dict):
+                    data_list = data.get("list", [])
+                    total_count = data.get("count", len(data_list))
+                else:
+                    # 如果data直接是列表（兼容处理）
+                    data_list = data if isinstance(data, list) else []
+                    total_count = len(data_list)
+
+                logger.info(f"Successfully fetched {len(data_list)} check objects (total: {total_count})")
+
                 return {
                     "code": 0,
                     "msg": "success",
                     "data": {
-                        "list": data_list if isinstance(data_list, list) else [],
-                        "total": len(data_list) if isinstance(data_list, list) else 0
+                        "list": data_list,
+                        "total": total_count
                     }
                 }
             else:
+                error_msg = response.get("message", "未知错误")
+                logger.error(f"API returned error status: {response.get('status')}, message: {error_msg}")
                 return {
                     "code": response.get("status", -1),
-                    "msg": response.get("message", "未知错误"),
+                    "msg": error_msg,
                     "data": {"list": [], "total": 0}
                 }
 
