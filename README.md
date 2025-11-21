@@ -339,43 +339,45 @@ npm run lint
 ### 快速部署
 
 1. **配置环境变量**
-
+   
    ```bash
    # 复制生产环境配置文件
    cp .env.prod.example .env
-
+   
    # 编辑环境变量，修改敏感信息
    nano .env
    ```
-
+   
    **必须修改的配置**:
+   
    - `POSTGRES_PASSWORD`: 数据库密码
    - `JWT_SECRET_KEY`: JWT密钥
 
 2. **启动服务**
-
+   
    ```bash
    # 使用生产配置启动
-   docker-compose -f docker-compose.prod.yml up -d --build
+   sudo docker compose -f docker-compose.prod.yml up -d --build
    ```
-
+   
    首次构建约2-5分钟（已优化国内镜像源）。
 
 3. **初始化数据库**
-
+   
    ```bash
-   docker-compose -f docker-compose.prod.yml exec backend alembic upgrade head
+   sudo docker compose -f docker-compose.prod.yml exec backend alembic upgrade head
    ```
 
 4. **配置SSL证书**（推荐）
-
+   
    使用Let's Encrypt申请免费SSL证书：
+   
    ```bash
    sudo certbot certonly --standalone -d jiance.wxhzch.com
    ```
 
 5. **访问系统**
-
+   
    - 前端: https://jiance.wxhzch.com
    - 后端API文档: https://jiance.wxhzch.com/api/v1/docs
    - 默认账号: `admin` / `admin123`
@@ -383,12 +385,14 @@ npm run lint
 ### 环境配置说明
 
 #### 本地开发环境
+
 - 配置文件: `docker-compose.yml`
 - 前端: http://localhost:3000
 - 后端: http://localhost:8000
 - CORS: 已配置支持 localhost
 
 #### 生产环境
+
 - 配置文件: `docker-compose.prod.yml`
 - 前端: https://jiance.wxhzch.com
 - 后端: https://jiance.wxhzch.com/api/v1
@@ -436,6 +440,7 @@ docker-compose -f docker-compose.prod.yml exec postgres \
 **解决方案**:
 
 1. 检查网络连接
+
 2. 清除Docker缓存重新构建：
    
    ```bash
@@ -443,7 +448,9 @@ docker-compose -f docker-compose.prod.yml exec postgres \
    sudo docker compose build --no-cache
    sudo docker compose up -d
    ```
+
 3. 如果国内镜像源不可用，可修改 Dockerfile 更换其他镜像源：
+   
    - npm: 可改用华为云镜像 `https://repo.huaweicloud.com/repository/npm/`
    - pip: 可改用阿里云镜像 `https://mirrors.aliyun.com/pypi/simple/`
 
