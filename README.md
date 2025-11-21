@@ -62,6 +62,7 @@ cp frontend/.env.example frontend/.env
 > ⚡ **国内用户推荐**: 项目已内置npm和pip国内镜像源配置，构建速度提升约4倍！
 
 **已优化的镜像源：**
+
 - ✅ npm: 淘宝镜像 (自动配置)
 - ✅ pip: 清华大学镜像 (自动配置)
 - ✅ apt: 阿里云镜像 (自动配置)
@@ -71,10 +72,12 @@ cp frontend/.env.example frontend/.env
 为进一步加速Docker基础镜像拉取，可配置Docker Hub国内镜像源。详见 [`DOCKER_MIRROR_CONFIG.md`](./DOCKER_MIRROR_CONFIG.md)
 
 **构建速度对比：**
-- 使用国内镜像源前: 8-18分钟
-- 使用国内镜像源后: 2-5分钟
-- **加速效果: 约4倍** 🚀
 
+- 使用国内镜像源前: 8-18分钟
+
+- 使用国内镜像源后: 2-5分钟
+
+- **加速效果: 约4倍** 🚀
 4. **启动所有服务**
 
 ```bash
@@ -327,31 +330,92 @@ npm run lint
 
 ## 生产部署
 
-1. **修改环境变量**
-   
-   - 更新 `backend/.env` 中的生产配置(数据库密码、JWT密钥等)
-   - 设置正确的 `SERVER_DOMAIN` 和 `ALLOWED_ORIGINS`
+### 生产环境信息
 
-2. **构建前端**
-   
+- **生产域名**: jiance.wxhzch.com
+- **前端**: https://jiance.wxhzch.com
+- **后端API**: https://jiance.wxhzch.com/api/v1
+
+### 快速部署
+
+1. **配置环境变量**
+
    ```bash
-   cd frontend
-   npm run build
+   # 复制生产环境配置文件
+   cp .env.prod.example .env
+
+   # 编辑环境变量，修改敏感信息
+   nano .env
    ```
 
-3. **使用生产配置启动Docker Compose**
-   
+   **必须修改的配置**:
+   - `POSTGRES_PASSWORD`: 数据库密码
+   - `JWT_SECRET_KEY`: JWT密钥
+
+2. **启动服务**
+
    ```bash
-   docker-compose -f docker-compose.prod.yml up -d
+   # 使用生产配置启动
+   docker-compose -f docker-compose.prod.yml up -d --build
    ```
 
-4. **运行数据库迁移**
-   
+   首次构建约2-5分钟（已优化国内镜像源）。
+
+3. **初始化数据库**
+
    ```bash
-   docker-compose exec backend alembic upgrade head
+   docker-compose -f docker-compose.prod.yml exec backend alembic upgrade head
    ```
 
-5. **配置Nginx反向代理**(可选)
+4. **配置SSL证书**（推荐）
+
+   使用Let's Encrypt申请免费SSL证书：
+   ```bash
+   sudo certbot certonly --standalone -d jiance.wxhzch.com
+   ```
+
+5. **访问系统**
+
+   - 前端: https://jiance.wxhzch.com
+   - 后端API文档: https://jiance.wxhzch.com/api/v1/docs
+   - 默认账号: `admin` / `admin123`
+
+### 环境配置说明
+
+#### 本地开发环境
+- 配置文件: `docker-compose.yml`
+- 前端: http://localhost:3000
+- 后端: http://localhost:8000
+- CORS: 已配置支持 localhost
+
+#### 生产环境
+- 配置文件: `docker-compose.prod.yml`
+- 前端: https://jiance.wxhzch.com
+- 后端: https://jiance.wxhzch.com/api/v1
+- CORS: 已配置支持 jiance.wxhzch.com
+
+### 详细部署文档
+
+完整的生产环境部署指南（包括SSL配置、监控、备份等）请查看：
+
+📖 **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 生产环境部署完整指南
+
+### 常用运维命令
+
+```bash
+# 查看服务状态
+docker-compose -f docker-compose.prod.yml ps
+
+# 查看日志
+docker-compose -f docker-compose.prod.yml logs -f
+
+# 重启服务
+docker-compose -f docker-compose.prod.yml restart
+
+# 备份数据库
+docker-compose -f docker-compose.prod.yml exec postgres \
+  pg_dump -U postgres food_quality > backup_$(date +%Y%m%d).sql
+```
 
 ## 故障排查
 
@@ -360,6 +424,7 @@ npm run lint
 **问题**: Docker构建过程耗时过长
 
 **解决方案**:
+
 1. 项目已内置npm、pip、apt国内镜像源，自动加速
 2. 可选：配置Docker Hub镜像加速，详见 [`DOCKER_MIRROR_CONFIG.md`](./DOCKER_MIRROR_CONFIG.md)
 3. 使用 `--no-cache` 重新构建：`docker-compose build --no-cache`
@@ -369,12 +434,14 @@ npm run lint
 **问题**: npm install 或 pip install 失败
 
 **解决方案**:
+
 1. 检查网络连接
 2. 清除Docker缓存重新构建：
+   
    ```bash
-   docker-compose down
-   docker-compose build --no-cache
-   docker-compose up -d
+   sudo docker compose down
+   sudo docker compose build --no-cache
+   sudo docker compose up -d
    ```
 3. 如果国内镜像源不可用，可修改 Dockerfile 更换其他镜像源：
    - npm: 可改用华为云镜像 `https://repo.huaweicloud.com/repository/npm/`

@@ -1,0 +1,76 @@
+# 生产环境 Docker Compose 配置
+# 域名: jiance.wxhzch.com
+# 启动命令: docker-compose -f docker-compose.prod.yml up -d --build
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: food-quality-db-prod
+    environment:
+      POSTGRES_DB: food_quality
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}  # 生产环境请修改密码
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: food-quality-backend-prod
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/food_quality
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      API_BASE_URL: ${API_BASE_URL:-https://test1.yunxianpei.com}
+      CLIENT_APP_ID: ${CLIENT_APP_ID:-689_abc}
+      CLIENT_SECRET: ${CLIENT_SECRET:-67868790}
+      # 生产环境配置
+      SERVER_DOMAIN: https://jiance.wxhzch.com
+      ALLOWED_ORIGINS: https://jiance.wxhzch.com,http://jiance.wxhzch.com
+      SYNC_INTERVAL_MINUTES: ${SYNC_INTERVAL_MINUTES:-30}
+      USE_MOCK_CLIENT_API: "false"
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        # 生产环境API地址
+        VITE_API_BASE_URL: https://jiance.wxhzch.com/api/v1
+    container_name: food-quality-frontend-prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  postgres_data_prod:
+
+networks:
+  app-network:
+    driver: bridge
