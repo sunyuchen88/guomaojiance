@@ -65,8 +65,8 @@
                   {{ getStatusText(record.status) }}
                 </a-tag>
               </template>
-              <template v-else-if="column.key === 'sampling_time'">
-                {{ formatDate(record.sampling_time) }}
+              <template v-else-if="column.key === 'create_time'">
+                {{ formatDate(record.create_time) }}
               </template>
               <template v-else-if="column.key === 'action'">
                 <a-space>
@@ -188,8 +188,8 @@ const batchDownloadFilters = computed<BatchDownloadParams>(() => {
 const columns = [
   {
     title: '检测编号',
-    dataIndex: 'check_no',
-    key: 'check_no',
+    dataIndex: 'check_object_union_num',
+    key: 'check_object_union_num',
     width: 150,
   },
   {
@@ -206,8 +206,8 @@ const columns = [
   },
   {
     title: '采样时间',
-    dataIndex: 'sampling_time',
-    key: 'sampling_time',
+    dataIndex: 'create_time',
+    key: 'create_time',
     width: 160,
   },
   {

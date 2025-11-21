@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 from datetime import datetime
 from typing import Optional, List
 
@@ -6,6 +6,7 @@ from typing import Optional, List
 class CheckObjectItemResponse(BaseModel):
     """检测项目信息响应 - T2.2: 5个核心字段"""
     id: int
+    check_item_id: Optional[int] = None    # 需求2.5.2: 序号 (对应3.1接口的item_id)
     check_item_name: Optional[str] = None  # 1. 检测项目
     check_method: Optional[str] = None     # 2. 检测方法
     unit: Optional[str] = None             # 3. 单位
@@ -43,6 +44,17 @@ class CheckObjectResponse(BaseModel):
     check_result_url: Optional[str] = None
     create_time: datetime
     updated_at: Optional[datetime] = None
+
+    # 字段别名映射：前端使用 sample_name 和 company_name
+    @computed_field
+    @property
+    def sample_name(self) -> Optional[str]:
+        return self.submission_goods_name
+
+    @computed_field
+    @property
+    def company_name(self) -> Optional[str]:
+        return self.submission_person_company
 
     class Config:
         from_attributes = True
@@ -88,6 +100,17 @@ class CheckObjectDetailResponse(BaseModel):
     check_items: List[CheckObjectItemResponse] = []
     create_time: datetime
     updated_at: Optional[datetime] = None
+
+    # 字段别名映射：前端使用 sample_name 和 company_name
+    @computed_field
+    @property
+    def sample_name(self) -> Optional[str]:
+        return self.submission_goods_name
+
+    @computed_field
+    @property
+    def company_name(self) -> Optional[str]:
+        return self.submission_person_company
 
     class Config:
         from_attributes = True

@@ -76,11 +76,6 @@
               placeholder="请输入样品类别"
             />
           </a-descriptions-item>
-          <a-descriptions-item label="样品状态">
-            <a-tag :color="getStatusColor(checkObject.status)">
-              {{ getStatusText(checkObject.status) }}
-            </a-tag>
-          </a-descriptions-item>
 
           <!-- 需求2.5.1: 第6行 -->
           <a-descriptions-item label="联系人">
@@ -202,14 +197,23 @@
             >
               <a-button>
                 <UploadOutlined />
-                选择PDF文件
+                {{ uploadedReportName ? '重新上传PDF文件' : '选择PDF文件' }}
               </a-button>
             </a-upload>
-            <div v-if="checkObject.report_url" style="margin-top: 8px">
-              当前报告：<a :href="checkObject.report_url" target="_blank">查看报告</a>
+
+            <!-- 显示已上传的报告 -->
+            <div v-if="uploadedReportName" style="margin-top: 8px">
+              <span style="color: #52c41a; margin-right: 8px">✓ 已上传：</span>
+              <a
+                @click="handleDownloadReport"
+                style="cursor: pointer; color: #1890ff; text-decoration: underline;"
+              >
+                {{ uploadedReportName }}
+              </a>
             </div>
+
             <div style="margin-top: 8px; color: #999; font-size: 12px">
-              仅支持PDF格式，文件大小不超过10MB
+              仅支持PDF格式，文件大小不超过10MB。重新上传将覆盖原有报告。
             </div>
           </a-form-item>
         </a-form>
@@ -293,6 +297,7 @@ const uploadModalVisible = ref(false);
 const submitModalVisible = ref(false);
 const checkObject = ref<CheckObjectDetail | null>(null);
 const reportFileList = ref<any[]>([]); // 需求2.5.3: 报告文件列表
+const uploadedReportName = ref<string>(''); // 已上传的报告名称
 
 const editForm = reactive({
   sample_name: '',
@@ -315,6 +320,7 @@ const editForm = reactive({
   // 需求2.5.3: 总体检测结果和报告
   check_result: '',
   report_file: null as File | null,
+  report_url: '', // 当前报告URL
 });
 
 // 需求2.5.2: 检测项目表格列定义
@@ -396,6 +402,17 @@ async function loadDetail() {
     editForm.check_items = data.check_items ? JSON.parse(JSON.stringify(data.check_items)) : [];
     // 需求2.5.3: 初始化总体检测结果
     editForm.check_result = data.check_result || '';
+    // 初始化报告URL
+    editForm.report_url = data.check_result_url || '';
+    // 从URL中提取报告名称
+    if (data.check_result_url) {
+      const urlParts = data.check_result_url.split('/');
+      uploadedReportName.value = decodeURIComponent(urlParts[urlParts.length - 1]);
+    } else {
+      uploadedReportName.value = '';
+    }
+    // 清空文件列表
+    reportFileList.value = [];
   } catch (error: any) {
     message.error('加载详情失败');
     router.push('/');
@@ -412,11 +429,14 @@ async function handleSave() {
 
   try {
     // Step 1: 上传检测报告（如果有新文件）
-    let reportUrl = checkObject.value.report_url;
+    let reportUrl = editForm.report_url;
     if (editForm.report_file) {
       try {
         const uploadResult = await uploadReport(editForm.report_file);
         reportUrl = uploadResult.file_url;
+        // 更新报告信息
+        editForm.report_url = uploadResult.file_url;
+        uploadedReportName.value = uploadResult.filename;
         message.success('报告上传成功');
       } catch (error: any) {
         message.error('报告上传失败: ' + (error.response?.data?.detail || error.message));
@@ -470,6 +490,9 @@ async function handleSave() {
     }
 
     message.success('保存成功');
+    // 清空文件列表和临时文件
+    reportFileList.value = [];
+    editForm.report_file = null;
     loadDetail();
   } catch (error: any) {
     message.error('保存失败: ' + (error.response?.data?.detail || error.message));
@@ -581,6 +604,23 @@ async function handleSubmitConfirm() {
 
 function handleBack() {
   router.push('/');
+}
+
+// 下载检测报告
+function handleDownloadReport() {
+  if (!editForm.report_url) {
+    message.error('没有可下载的报告');
+    return;
+  }
+
+  // 创建一个隐藏的a标签来触发下载
+  const link = document.createElement('a');
+  link.href = editForm.report_url;
+  link.download = uploadedReportName.value || '检测报告.pdf';
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 // 需求2.5.3: 报告文件上传校验

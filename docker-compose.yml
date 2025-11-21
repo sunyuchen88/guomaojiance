@@ -1,5 +1,17 @@
+# 食品质检系统 Docker Compose 配置
+#
+# 国内镜像源优化说明：
+# 1. 前端 Dockerfile 已配置淘宝 npm 镜像源
+# 2. 后端 Dockerfile 已配置清华 pip 镜像源和阿里云 APT 镜像源
+# 3. 建议配置 Docker Hub 镜像加速，详见 DOCKER_MIRROR_CONFIG.md
+#
+# 启动命令: docker-compose up --build
+# 停止命令: docker-compose down
+
 services:
   postgres:
+    # 使用 PostgreSQL 15 Alpine 版本（轻量级）
+    # 如需加速拉取，请配置 Docker Hub 镜像源（见 DOCKER_MIRROR_CONFIG.md）
     image: postgres:15-alpine
     container_name: food-quality-db
     environment:
@@ -20,6 +32,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      # Dockerfile 已配置:
+      # - pip 使用清华镜像源
+      # - apt 使用阿里云镜像源
     container_name: food-quality-backend
     environment:
       DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/food_quality
@@ -44,6 +59,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      # Dockerfile 已配置:
+      # - npm 使用淘宝镜像源
     container_name: food-quality-frontend
     environment:
       VITE_API_BASE_URL: http://localhost:8000/api/v1

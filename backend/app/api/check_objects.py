@@ -83,8 +83,8 @@ def get_check_objects(
     if check_result:
         query = query.filter(CheckObject.check_result == check_result)
 
-    # Order by create_time descending
-    query = query.order_by(CheckObject.create_time.desc())
+    # Order by check_object_union_num ascending (检测编号升序)
+    query = query.order_by(CheckObject.check_object_union_num.asc())
 
     # Get total count
     total = query.count()
@@ -164,8 +164,17 @@ def update_check_object(
 
     # Update check object fields
     update_dict = update_data.dict(exclude_unset=True, exclude={"check_items"})
+
+    # 字段映射：将前端字段名映射到数据库字段名
+    field_mapping = {
+        'sample_name': 'submission_goods_name',
+        'company_name': 'submission_person_company'
+    }
+
     for key, value in update_dict.items():
-        setattr(check_object, key, value)
+        # 如果是需要映射的字段，使用映射后的字段名
+        db_field = field_mapping.get(key, key)
+        setattr(check_object, db_field, value)
 
     # Update check items if provided
     if update_data.check_items is not None:
