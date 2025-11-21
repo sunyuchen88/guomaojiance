@@ -172,15 +172,17 @@ def update_check_object(
         for item_update in update_data.check_items:
             if item_update.id:
                 # Update existing item
+                # 注意：需要使用check_object的check_object_id (BigInteger)，而不是id
                 item = db.query(CheckObjectItem).filter(
                     CheckObjectItem.id == item_update.id,
-                    CheckObjectItem.check_object_id == check_object_id
+                    CheckObjectItem.check_object_id == check_object.check_object_id
                 ).first()
 
                 if item:
-                    for key, value in item_update.dict(exclude_unset=True).items():
-                        if key != "id":
-                            setattr(item, key, value)
+                    # 更新所有提供的字段
+                    item_dict = item_update.dict(exclude_unset=True, exclude={"id"})
+                    for key, value in item_dict.items():
+                        setattr(item, key, value)
 
     db.commit()
     db.refresh(check_object)

@@ -157,9 +157,9 @@
                 placeholder="单位"
               />
             </template>
-            <template v-else-if="column.key === 'check_result'">
+            <template v-else-if="column.key === 'num'">
               <a-input
-                v-model:value="editForm.check_items[index].check_result"
+                v-model:value="editForm.check_items[index].num"
                 placeholder="检测结果"
               />
             </template>
@@ -339,8 +339,8 @@ const itemColumns = [
   },
   {
     title: '检测结果',
-    key: 'check_result',
-    dataIndex: 'check_result',
+    key: 'num',
+    dataIndex: 'num',
     width: 120,
   },
   {
@@ -452,19 +452,19 @@ async function handleSave() {
         check_item_name: item.check_item_name,
         check_method: item.check_method,
         unit: item.unit,
-        check_result: item.check_result,
+        num: item.num,
         detection_limit: item.detection_limit,
       })),
     });
 
     // Step 3: 如果有总体检测结果或检测项目结果，调用saveCheckResult
-    if (editForm.check_result || editForm.check_items.some(item => item.check_result)) {
+    if (editForm.check_result || editForm.check_items.some(item => item.num)) {
       await saveCheckResult(checkObject.value.id, {
         check_result: editForm.check_result,
         check_items: editForm.check_items.map(item => ({
           id: item.id,
-          check_result: item.check_result || '',
-          result_indicator: item.result_indicator || '',
+          num: item.num || '',
+          result: item.result || '',
         })),
       });
     }
